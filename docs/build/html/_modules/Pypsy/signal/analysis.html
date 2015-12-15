@@ -1,0 +1,1117 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Pypsy.signal.analysis &mdash; Pypsy 0.0.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Pypsy 0.0.0 documentation" href="../../../index.html"/>
+        <link rel="up" title="Pypsy.signal" href="../signal.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Pypsy
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Pypsy</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">Pypsy</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../../Pypsy.html">Pypsy</a> &raquo;</li>
+      
+          <li><a href="../signal.html">Pypsy.signal</a> &raquo;</li>
+      
+    <li>Pypsy.signal.analysis</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for Pypsy.signal.analysis</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">Pypsy.signal.utilities</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Brennon Bortz&quot;</span>
+
+<div class="viewcode-block" id="bateman"><a class="viewcode-back" href="../../../Pypsy.signal.html#Pypsy.signal.analysis.bateman">[docs]</a><span class="k">def</span> <span class="nf">bateman</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">onset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tau1</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">tau2</span><span class="o">=</span><span class="mf">3.75</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns an :py:class:`numpy.ndarray` that represents the value of the Bateman function. The Bateman</span>
+<span class="sd">    function is evaluated over ``time``, and is parameterized by ``tau1`` and ``tau2``.</span>
+
+<span class="sd">    The Bateman function is:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        Bateman(t) = e^{\\frac{-t}{\\tau_2}} - e^{\\frac{-t}{\\tau_1}}</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time : array_like</span>
+<span class="sd">        The times (in seconds) at which the Bateman function should be evaluated</span>
+<span class="sd">    onset : float</span>
+<span class="sd">        The time (in seconds) of the maximum amplitude of the Bateman function</span>
+<span class="sd">    amplitude : float</span>
+<span class="sd">        The maximum amplitude of the Bateman function</span>
+<span class="sd">    tau1 : float</span>
+<span class="sd">        The :math:`\\tau_1` parameter for the Bateman function</span>
+<span class="sd">    tau2 : float</span>
+<span class="sd">        The :math:`\\tau_2` parameter for the Bateman function</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    out : :py:class:`numpy.ndarray`</span>
+<span class="sd">        The values of the Bateman function evaluated at each point in ``time``</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``tau1`` and ``tau2`` are not both greater than zero, or if they are equal</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If ``time`` is not array-like (cannot be converted to a :py:class:`numpy.ndarray` using</span>
+<span class="sd">        :py:meth:`numpy.array()`)</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; bateman_time = np.linspace(0, 20 - (1. / 25), 20 * 25)</span>
+<span class="sd">    &gt;&gt;&gt; evaluated = bateman(bateman_time, onset=4, amplitude=0.5, tau1=0.5, tau2=3.75)</span>
+<span class="sd">    &gt;&gt;&gt; np.where(evaluated == np.max(evaluated))[0][0]</span>
+<span class="sd">    129</span>
+<span class="sd">    &gt;&gt;&gt; np.abs(0.5 - evaluated[129]) &lt; 0.001</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+
+    <span class="c"># tau1 and tau2 must both be greater than 0</span>
+    <span class="k">if</span> <span class="n">tau1</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">tau2</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;tau1 and tau2 must both be greater than zero.&#39;</span><span class="p">)</span>
+
+    <span class="c"># tau1 and tau2 must not be equal</span>
+    <span class="k">if</span> <span class="n">tau1</span> <span class="o">==</span> <span class="n">tau2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;tau1 and tau2 cannot be equal.&#39;</span><span class="p">)</span>
+
+    <span class="c"># Initialize a vector of zeros the length of time vector</span>
+    <span class="n">conductance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+    <span class="c"># Find indices in time vector that are greater than onset</span>
+    <span class="n">onset_range</span> <span class="o">=</span> <span class="n">time</span> <span class="o">&gt;</span> <span class="n">onset</span>
+
+    <span class="c"># Return just the conductance zeros vector if no values in time vector were</span>
+    <span class="c"># greater than onset</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">onset_range</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">conductance</span>
+
+    <span class="c"># Create xr as the time vector subsetted to just those values that are</span>
+    <span class="c"># greater than onset. Subtract the value of onset from each item in this</span>
+    <span class="c"># vector.</span>
+    <span class="n">xr</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="n">onset_range</span><span class="p">]</span> <span class="o">-</span> <span class="n">onset</span><span class="p">;</span>
+
+    <span class="c"># If amplitude parameter is greater than zero</span>
+    <span class="k">if</span> <span class="n">amplitude</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+        <span class="c"># Find the value of x at which bateman(x, tau1, tau2) is maximized. This is the value at which the first</span>
+        <span class="c"># derivative of bateman(x, tau1, tau2) equals 0</span>
+        <span class="n">max_x</span> <span class="o">=</span> <span class="n">tau1</span> <span class="o">*</span> <span class="n">tau2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">tau1</span><span class="o">/</span><span class="n">tau2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">tau1</span> <span class="o">-</span> <span class="n">tau2</span><span class="p">)</span>
+
+        <span class="c"># Find the value of bateman(x, tau1, tau2) at max_x</span>
+        <span class="n">max_amp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">max_x</span><span class="o">/</span><span class="n">tau2</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">max_x</span><span class="o">/</span><span class="n">tau1</span><span class="p">))</span>
+
+        <span class="c"># Define c to be the ratio of the amplitude passed as the argument and the maximum amplitude of</span>
+        <span class="c"># bateman(x, tau1, tau2)</span>
+        <span class="n">c</span> <span class="o">=</span>  <span class="n">amplitude</span><span class="o">/</span><span class="n">max_amp</span>
+
+    <span class="c"># If amplitude is equal to zero</span>
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="c"># Approximate area under bateman(x, tau1, tau2) and define c to scale output by 1/sampling rate, as calculated</span>
+        <span class="c"># by taking the reciprocal of the mean of the discrete first derivative of the timestamp vector</span>
+        <span class="n">fs</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time</span><span class="p">)));</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="p">((</span><span class="n">tau2</span> <span class="o">-</span> <span class="n">tau1</span><span class="p">)</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)</span>
+
+    <span class="c"># If tau1 is greater than zero</span>
+    <span class="k">if</span> <span class="n">tau1</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+        <span class="c"># Return c * bateman(x, tau1, tau2)</span>
+        <span class="n">conductance</span><span class="p">[</span><span class="n">onset_range</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">xr</span><span class="o">/</span><span class="n">tau2</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">xr</span><span class="o">/</span><span class="n">tau1</span><span class="p">));</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="c"># Return c * e^(-x/tau2)</span>
+        <span class="n">conductance</span><span class="p">[</span><span class="n">onset_range</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">xr</span><span class="o">/</span><span class="n">tau2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">conductance</span>
+
+</div>
+<div class="viewcode-block" id="bateman_gauss"><a class="viewcode-back" href="../../../Pypsy.signal.html#Pypsy.signal.analysis.bateman_gauss">[docs]</a><span class="k">def</span> <span class="nf">bateman_gauss</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">onset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tau1</span><span class="o">=</span><span class="mf">3.75</span><span class="p">,</span> <span class="n">tau2</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns an :py:class:`numpy.ndarray` that represents the value of the Bateman function. The Bateman function is</span>
+<span class="sd">    evaluated over ``time``, and is parameterized by ``tau1`` and ``tau2``.</span>
+
+<span class="sd">    The Bateman function is:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        Bateman(t) = e^{\\frac{-t}{\\tau_2}} - e^{\\frac{-t}{\\tau_1}}</span>
+
+<span class="sd">    The output of the Bateman function is smoothed by convolution with a Gaussian window.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time : array_like</span>
+<span class="sd">        The times (in seconds) at which the Bateman function should be evaluated</span>
+<span class="sd">    onset : float</span>
+<span class="sd">        The time (in seconds) of the maximum amplitude of the Bateman function</span>
+<span class="sd">    amplitude : float</span>
+<span class="sd">        The maximum amplitude of the Bateman function</span>
+<span class="sd">    tau1 : float</span>
+<span class="sd">        The :math:`\\tau_1` parameter for the Bateman function.</span>
+<span class="sd">    tau2 : float</span>
+<span class="sd">        The :math:`\\tau_2` parameter for the Bateman function.</span>
+<span class="sd">    sigma : float</span>
+<span class="sd">        The :math:`\\sigma` to be used for the Gaussian smoothing function</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    out : :py:class:`numpy.ndarray`</span>
+<span class="sd">        The values of the Gaussian-smoothed Bateman function evaluated at each point in ``time``</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``tau1`` and ``tau2`` are not both greater than zero, or if they are equal.</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If ``time`` is not array-like (cannot be converted to a :py:class:`numpy.ndarray` using</span>
+<span class="sd">        :py:meth:`numpy.array()`)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+    <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">convolve</span>
+
+    <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+
+    <span class="c"># Generate the output of the Bateman Function with the provided parameters,</span>
+    <span class="c"># but with amplitude = 0</span>
+    <span class="n">component</span> <span class="o">=</span> <span class="n">bateman</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">onset</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">tau1</span><span class="p">,</span> <span class="n">tau2</span><span class="p">)</span>
+
+    <span class="c"># If a sigma parameter was provided that is greater than zero, window the</span>
+    <span class="c"># Bateman Function output with a Gaussian window</span>
+    <span class="k">if</span> <span class="n">sigma</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+        <span class="c"># Estimate sampling rate</span>
+        <span class="n">sr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time</span><span class="p">)))</span>
+
+        <span class="c"># We&#39;ll prepend and append extensions of the first and last values of</span>
+        <span class="c"># the Bateman output to either side of it. The length of each of these</span>
+        <span class="c"># extensions is 4*sigma</span>
+        <span class="n">winwidth2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">sr</span> <span class="o">*</span> <span class="n">sigma</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
+
+        <span class="c"># Create a time vector for the Gaussian window that is 2 * winwidth2 + 1</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">winwidth2</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c"># Generate the Gaussian window across t, centered over the middle of t,</span>
+        <span class="c"># and with a standard deviation of sigma times the sampling rate.</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">winwidth2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">sr</span><span class="p">)</span>
+
+        <span class="c"># Scale the amplitude of the window to equal the maximum amplitude of</span>
+        <span class="c"># the Bateman function output.</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">g</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="o">*</span> <span class="n">amplitude</span><span class="p">;</span>
+
+        <span class="c"># Convolve the extended Bateman function output with the Gaussian</span>
+        <span class="c"># window.</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">winwidth2</span><span class="p">)</span> <span class="o">*</span> <span class="n">component</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">tail</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">winwidth2</span><span class="p">)</span> <span class="o">*</span> <span class="n">component</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">extended_component</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">head</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">tail</span><span class="p">])</span>
+        <span class="n">bg</span> <span class="o">=</span> <span class="n">convolve</span><span class="p">(</span><span class="n">extended_component</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+
+        <span class="c"># Return the &#39;interesting&#39; portion of the result of the convolution</span>
+        <span class="c"># (trim the tail).</span>
+        <span class="n">component</span> <span class="o">=</span> <span class="n">bg</span><span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="n">winwidth2</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span> <span class="o">-</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">winwidth2</span><span class="o">*</span><span class="mi">2</span><span class="p">))]</span>
+
+    <span class="k">return</span> <span class="n">component</span>
+
+</div>
+<div class="viewcode-block" id="get_peaks"><a class="viewcode-back" href="../../../Pypsy.signal.html#Pypsy.signal.analysis.get_peaks">[docs]</a><span class="k">def</span> <span class="nf">get_peaks</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the indices of the minima and maxima in ``data``. Minima and maxima are identified by searching for sign</span>
+<span class="sd">    changes (zero crossings) in the first differential.</span>
+
+<span class="sd">    There are two important caveats to this function. First, if the last extremum is a maximum, the last index of the</span>
+<span class="sd">    signal is returned as the final minimum. Second, because this function looks for sign changes in the differential</span>
+<span class="sd">    of ``data``, if the last index of the signal is a maximum, it will not be returned, as there is no successive value</span>
+<span class="sd">    to generate a further sign change in the differential.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : array_like</span>
+<span class="sd">        The signal from which to extract peaks</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    minima : :py:class:`numpy.ndarray`</span>
+<span class="sd">        Each entry in the `minima` array is an index of a minimum in the original signal.</span>
+<span class="sd">    maxima : :py:class:`numpy.ndarray`</span>
+<span class="sd">        Each entry in the `maxima` array is an index of a minimum in the original signal.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If ``data`` is not array-like (cannot be converted to a :py:class:`numpy.ndarray` using</span>
+<span class="sd">        :py:meth:`numpy.array()`)</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; dc = np.array([1., 1, 1, 1, 1])</span>
+<span class="sd">    &gt;&gt;&gt; minima, maxima = get_peaks(dc)</span>
+<span class="sd">    &gt;&gt;&gt; minima.size</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; maxima.size</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; triangle = np.array([-1., 0, 1, 0, -1, 0, 1])</span>
+<span class="sd">    &gt;&gt;&gt; minima, maxima = get_peaks(triangle)</span>
+<span class="sd">    &gt;&gt;&gt; list(minima)</span>
+<span class="sd">    [0, 4]</span>
+<span class="sd">    &gt;&gt;&gt; list(maxima)</span>
+<span class="sd">    [2]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c"># First derivative (discrete) of data</span>
+    <span class="n">ddata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="n">extrema</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+    <span class="c"># Get all indices of nonzero values in ddata</span>
+    <span class="n">start_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ddata</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c"># If there are no nonzero values, return empty minima/maxima vectors</span>
+    <span class="k">if</span> <span class="n">start_idx</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+    <span class="c"># Start at index of first nonzero value in ddata</span>
+    <span class="n">start_idx</span> <span class="o">=</span> <span class="n">start_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+
+    <span class="c"># Get the sign of ddata value at the start index</span>
+    <span class="n">pos_neg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">ddata</span><span class="p">[</span><span class="n">start_idx</span><span class="p">])</span>
+
+    <span class="c"># Iterate over ccd from the next index of nonzero values after start index through the rest of ddata</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ddata</span><span class="p">)):</span>
+
+        <span class="c"># If the sign of ddata at this index is the opposite of the sign of ddata at pos_neg</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">ddata</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">!=</span> <span class="n">pos_neg</span><span class="p">:</span>
+
+            <span class="c"># If the first extremum is a maximum</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">extrema</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">pos_neg</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+
+                <span class="c"># predataidx is a vector of integers from one up to one before the current i</span>
+                <span class="n">predataidx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">start_idx</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+                <span class="c"># Find the minimum of data before this point, but after start_idx</span>
+                <span class="n">pre_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">predataidx</span><span class="p">])</span>
+                <span class="n">pre_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">data</span> <span class="o">==</span> <span class="n">pre_min</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">shifted_idx</span> <span class="o">=</span> <span class="n">pre_idx</span> <span class="o">+</span> <span class="n">start_idx</span>
+
+                <span class="c"># Store the index of this minimum point as an extremum</span>
+                <span class="n">extrema</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extrema</span><span class="p">,</span> <span class="p">[</span><span class="n">shifted_idx</span><span class="p">])</span>
+
+            <span class="c"># Append the current extremum to the cccri vector</span>
+            <span class="n">extrema</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extrema</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+            <span class="c"># Flip the sign (pos_neg)</span>
+            <span class="n">pos_neg</span> <span class="o">=</span> <span class="o">-</span><span class="n">pos_neg</span><span class="p">;</span>
+
+    <span class="c"># If last extremum is a maximum (if we have an even number of extrema) add a minimum after it</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">extrema</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+
+        <span class="c"># Append the last index of data as the final minimum</span>
+        <span class="n">extrema</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extrema</span><span class="p">,</span> <span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]);</span>
+
+    <span class="c"># Sort the extrema</span>
+    <span class="n">extrema</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">extrema</span><span class="p">)</span>
+
+    <span class="c"># The first and every other entry in cccri are all minima</span>
+    <span class="n">minima</span> <span class="o">=</span> <span class="n">extrema</span><span class="p">[</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="c"># The second and every other entry in cccri are all maxima</span>
+    <span class="n">maxima</span> <span class="o">=</span> <span class="n">extrema</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">minima</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">maxima</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="significant_peaks"><a class="viewcode-back" href="../../../Pypsy.signal.html#Pypsy.signal.analysis.significant_peaks">[docs]</a><span class="k">def</span> <span class="nf">significant_peaks</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">minima</span><span class="p">,</span> <span class="n">maxima</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find all peaks in a vector that are greater than a threshold value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : array_like</span>
+<span class="sd">        A signal vector</span>
+<span class="sd">    minima : array_like</span>
+<span class="sd">        A vector of the indices of minima in ``data``</span>
+<span class="sd">    maxima : array_like</span>
+<span class="sd">        A vector of the indices of maxima in ``data``</span>
+<span class="sd">    sig : float</span>
+<span class="sd">        The absolute amplitude above which maximum are to be considered with respect to to their preceding and</span>
+<span class="sd">        following minima</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    significant_minima : :py:class:`numpy.ndarray`</span>
+<span class="sd">        A two-dimensional array. Each &#39;row&#39; in the array corresponds to its respective entry in the `significant_maxima`</span>
+<span class="sd">        array. The first &#39;column&#39; in the row is the index of the minimum that immediately precedes the maximum referred</span>
+<span class="sd">        to in `significant_maxima`. The second &#39;column&#39; in the row is the index of the minimum that immediately follows</span>
+<span class="sd">        the maximum referred to in `significant_maxima`. Note that *when there are no significant minima, this is an</span>
+<span class="sd">        empty, single-dimensional array.*</span>
+<span class="sd">    significant_maxima : :py:class:`numpy.ndarray`</span>
+<span class="sd">        The indices of all maxima for which the absolute amplitude difference between the preceding and/or following</span>
+<span class="sd">        minimum is greater than ``threshold``</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If any of ``data``, ``minima``, or ``maxima`` are not array-like (cannot be converted to a</span>
+<span class="sd">        :py:class:`numpy.ndarray` using :py:meth:`numpy.array()`)</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; sig = np.array([0., 0.25, 0, 0.5, 0, 1, 0, 0.5, -0.2, 0, 0.25, 0])</span>
+<span class="sd">    &gt;&gt;&gt; minima, maxima = get_peaks(sig)</span>
+<span class="sd">    &gt;&gt;&gt; sig_minima, sig_maxima = significant_peaks(sig, minima, maxima, 0.6)</span>
+<span class="sd">    &gt;&gt;&gt; sig_minima[0]</span>
+<span class="sd">    array([4, 6])</span>
+<span class="sd">    &gt;&gt;&gt; sig_minima[1]</span>
+<span class="sd">    array([6, 8])</span>
+<span class="sd">    &gt;&gt;&gt; sig_maxima</span>
+<span class="sd">    array([5, 7])</span>
+<span class="sd">    &gt;&gt;&gt; sig_minima, sig_maxima = significant_peaks(sig, minima, maxima, 1.)</span>
+<span class="sd">    &gt;&gt;&gt; sig_minima</span>
+<span class="sd">    array([], dtype=int64)</span>
+
+<span class="sd">    &gt;&gt;&gt; sig = np.array([0, 1, 0])</span>
+<span class="sd">    &gt;&gt;&gt; minima, maxima = get_peaks(sig)</span>
+<span class="sd">    &gt;&gt;&gt; minima</span>
+<span class="sd">    array([0, 2])</span>
+<span class="sd">    &gt;&gt;&gt; maxima</span>
+<span class="sd">    array([1])</span>
+<span class="sd">    &gt;&gt;&gt; sig_minima, sig_maxima = significant_peaks(sig, minima, maxima, 0.1)</span>
+<span class="sd">    &gt;&gt;&gt; sig_minima</span>
+<span class="sd">    array([0, 2])</span>
+<span class="sd">    &gt;&gt;&gt; sig_maxima</span>
+<span class="sd">    array([1])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">minima</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">minima</span><span class="p">)</span>
+    <span class="n">maxima</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">maxima</span><span class="p">)</span>
+
+    <span class="c"># Will be a vector of indices in data of all maxima in data that have a rise and/or fall of &gt; sigc.</span>
+    <span class="n">kept_maxima</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;int64&#39;</span><span class="p">)</span>
+
+    <span class="c"># Will be a length(maxL) x 2 matrix. Each row corresponds to a maxima in maxL. The first column gives the index of</span>
+    <span class="c"># the minimum immediately before the maximum, and the second column gives the index of the minimum immediately</span>
+    <span class="c"># following the maximum.</span>
+    <span class="n">kept_minima</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;int64&#39;</span><span class="p">)</span>
+
+    <span class="c"># Return empty vectors if we didn&#39;t get any maxima</span>
+    <span class="k">if</span> <span class="n">maxima</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">kept_minima</span><span class="p">,</span> <span class="n">kept_maxima</span>
+
+    <span class="c"># Build a two-row matrix where each column corresponds to a maximum. The first row is the difference between the</span>
+    <span class="c"># maximum and its preceding minimaum. The second is the difference between the maximum and the next minimum.</span>
+    <span class="n">rises</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">maxima</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="n">minima</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="n">falls</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">maxima</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="n">minima</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+    <span class="n">rises_falls</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rises</span><span class="p">,</span> <span class="n">falls</span><span class="p">])</span>
+
+    <span class="c"># Take all maxima from the maxima vector where either its rise or fall is greater than sigc.</span>
+    <span class="n">kept_maxima</span> <span class="o">=</span> <span class="p">(</span><span class="n">maxima</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">rises_falls</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c"># Iterate over maxL vector (indices of maxima that are &gt; sigc)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">kept_maxima</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+
+        <span class="c"># Take minima immediately before and after this maximum</span>
+        <span class="n">min_idx_before</span> <span class="o">=</span> <span class="n">minima</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">minima</span> <span class="o">&lt;</span> <span class="n">kept_maxima</span><span class="p">[</span><span class="n">i</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">min_idx_after</span> <span class="o">=</span> <span class="n">minima</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">minima</span> <span class="o">&lt;</span> <span class="n">kept_maxima</span><span class="p">[</span><span class="n">i</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="c"># Build up minL matrix. One row for every maximum (column) in minL. The columns are the indices of the minima</span>
+        <span class="c"># immediately before and after the corresponding maxima=um at the index in maxL.</span>
+        <span class="n">new_row</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">min_idx_before</span><span class="p">,</span> <span class="n">min_idx_after</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">kept_minima</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">kept_minima</span> <span class="o">=</span> <span class="n">new_row</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">kept_minima</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">kept_minima</span><span class="p">,</span> <span class="n">new_row</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">kept_minima</span><span class="p">,</span> <span class="n">kept_maxima</span>
+
+</div>
+<div class="viewcode-block" id="segment_driver"><a class="viewcode-back" href="../../../Pypsy.signal.html#Pypsy.signal.analysis.segment_driver">[docs]</a><span class="k">def</span> <span class="nf">segment_driver</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">remainder</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">window_size</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Segment a signal into individual impulse_segments. Only those impulse_segments that are greater in amplitude than</span>
+<span class="sd">    ``threshold`` are extracted. Also, extract corresponding overshoot data from a remainder signal for each extracted</span>
+<span class="sd">    impulse. The maximum width of segments (in samples) is governed by ``window_size``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : array_like</span>
+<span class="sd">        The signal to be segmented</span>
+<span class="sd">    remainder : array_like</span>
+<span class="sd">        A remainder signal from which to extract overshoot data</span>
+<span class="sd">    threshold : float</span>
+<span class="sd">        The criterion amplitude for determining those impulse_segments that should be extracted. Impulses are only</span>
+<span class="sd">        extracted if the absolute amplitude difference between the segment peak and its preceding and/or following</span>
+<span class="sd">        minimum is greater than ``threshold``.</span>
+<span class="sd">    maximum_width : int</span>
+<span class="sd">        The maximum width of a segment in samples</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    onsets : numpy.ndarray</span>
+<span class="sd">        A vector of time indices in the signal that correspond to the start points of the impulse windows</span>
+<span class="sd">    impulse_segments : list(numpy.ndarray)</span>
+<span class="sd">        A list of segments of the signal containing a vector for each impulse</span>
+<span class="sd">    overshoot_segments : list(numpy.ndarray)</span>
+<span class="sd">        A list of segments of the remainder signal corresponding to overshoot</span>
+<span class="sd">    impulse_minima : numpy.ndarray</span>
+<span class="sd">        A matrix of time indices of the data_minima surrounding the data_maxima in ``impulse_maxima``--the first column is the</span>
+<span class="sd">        timestamp of the data_minima preceding the corresponding impulse in ``impulse_maxima`` and the second column is the</span>
+<span class="sd">        timestamp of the data_minima following the corresponding impulse in ``impulse_maxima``</span>
+<span class="sd">    impulse_maxima : numpy.ndarray</span>
+<span class="sd">        A vector of time indices of the data_maxima of each impulse in ``onsets``</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If either ``data`` or ``remainder`` are not array-like (cannot be converted to a :py:class:`numpy.ndarray` using</span>
+<span class="sd">        :py:meth:`numpy.array()`)</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; d = np.array([0, 0, 0.4, 0, 1,   0,   0.3, 0, 0])</span>
+<span class="sd">    &gt;&gt;&gt; r = np.array([0, 0, 0,   0, 0.5, 0.6, 0,   0, 0])</span>
+<span class="sd">    &gt;&gt;&gt; onsets, impulse_segments, overshoot_segments, impulse_minima, impulse_maxima = segment_driver(d, r, 0.5, 4)</span>
+<span class="sd">    &gt;&gt;&gt; onsets</span>
+<span class="sd">    array([3])</span>
+<span class="sd">    &gt;&gt;&gt; impulse_segments</span>
+<span class="sd">    [array([ 0.,  1.,  0.,  0.])]</span>
+<span class="sd">    &gt;&gt;&gt; overshoot_segments</span>
+<span class="sd">    [array([ 0. ,  0.5,  0.6,  0. ])]</span>
+<span class="sd">    &gt;&gt;&gt; impulse_minima</span>
+<span class="sd">    array([[3, 5]])</span>
+<span class="sd">    &gt;&gt;&gt; impulse_maxima</span>
+<span class="sd">    array([4])</span>
+
+<span class="sd">    &gt;&gt;&gt; d = np.array([0, 0, 0.4, 0, 1,   0,   0.3, 0, 0])</span>
+<span class="sd">    &gt;&gt;&gt; r = np.array([0, 0, 0,   0, 0.5, 0.6, 0,   0, 0])</span>
+<span class="sd">    &gt;&gt;&gt; onsets, impulse_segments, overshoot_segments, impulse_minima, impulse_maxima = segment_driver(d, r, 0.3, 4)</span>
+<span class="sd">    &gt;&gt;&gt; onsets</span>
+<span class="sd">    array([1, 3])</span>
+<span class="sd">    &gt;&gt;&gt; impulse_segments</span>
+<span class="sd">    [array([ 0. ,  0.4,  0. ,  0. ]), array([ 0.,  1.,  0.,  0.])]</span>
+<span class="sd">    &gt;&gt;&gt; overshoot_segments</span>
+<span class="sd">    [array([ 0.,  0.,  0.,  0.]), array([ 0. ,  0.5,  0.6,  0. ])]</span>
+<span class="sd">    &gt;&gt;&gt; impulse_minima</span>
+<span class="sd">    array([[1, 3],</span>
+<span class="sd">           [3, 5]])</span>
+<span class="sd">    &gt;&gt;&gt; impulse_maxima</span>
+<span class="sd">    array([2, 4])</span>
+
+<span class="sd">    &gt;&gt;&gt; d = np.array([0, 0, 0.4, 0, 1,   0,   0.3, 0, 0])</span>
+<span class="sd">    &gt;&gt;&gt; r = np.array([0, 0, 0,   0, 0.5, 0.6, 0,   0, 0])</span>
+<span class="sd">    &gt;&gt;&gt; onsets, impulse_segments, overshoot_segments, impulse_minima, impulse_maxima = segment_driver(d, r, 1.5, 4)</span>
+<span class="sd">    &gt;&gt;&gt; onsets</span>
+<span class="sd">    array([], dtype=int64)</span>
+<span class="sd">    &gt;&gt;&gt; impulse_segments</span>
+<span class="sd">    []</span>
+<span class="sd">    &gt;&gt;&gt; overshoot_segments</span>
+<span class="sd">    []</span>
+<span class="sd">    &gt;&gt;&gt; impulse_minima</span>
+<span class="sd">    array([], dtype=int64)</span>
+<span class="sd">    &gt;&gt;&gt; impulse_maxima</span>
+<span class="sd">    array([], dtype=int64)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">remainder</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">remainder</span><span class="p">)</span>
+
+    <span class="c"># Initialize outputs</span>
+    <span class="n">onsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;int64&#39;</span><span class="p">)</span>
+    <span class="n">impulse_segments</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">overshoot_segments</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">impulse_minima</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="n">impulse_maxima</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+    <span class="c"># Get indices of minima and maxima in data vector</span>
+    <span class="n">data_minima</span><span class="p">,</span> <span class="n">data_maxima</span> <span class="o">=</span> <span class="n">get_peaks</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c"># If there were no data_minima or data_maxima, return initial values</span>
+    <span class="k">if</span> <span class="n">data_maxima</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">onsets</span><span class="p">,</span> <span class="n">impulse_segments</span><span class="p">,</span> <span class="n">overshoot_segments</span><span class="p">,</span> <span class="n">impulse_minima</span><span class="p">,</span> <span class="n">impulse_maxima</span>
+
+    <span class="c"># Get matrices for significant peaks</span>
+    <span class="n">data_significant_minima</span><span class="p">,</span> <span class="n">data_significant_maxima</span> <span class="o">=</span> <span class="n">significant_peaks</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_minima</span><span class="p">,</span> <span class="n">data_maxima</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+
+    <span class="c"># Get data_minima/data_maxima and significant data_minima/data_maxima segments for remainder</span>
+    <span class="n">remainder_minima</span><span class="p">,</span> <span class="n">remainder_maxima</span> <span class="o">=</span> <span class="n">get_peaks</span><span class="p">(</span><span class="n">remainder</span><span class="p">)</span>
+    <span class="n">remainder_significant_minima</span><span class="p">,</span> <span class="n">remainder_significant_maxima</span> <span class="o">=</span> <span class="n">significant_peaks</span><span class="p">(</span>
+        <span class="n">remainder</span><span class="p">,</span>
+        <span class="n">remainder_minima</span><span class="p">,</span>
+        <span class="n">remainder_maxima</span><span class="p">,</span>
+        <span class="o">.</span><span class="mo">005</span>
+    <span class="p">)</span>
+
+    <span class="c"># We need to stack another minimum row if there is only one row. Otherwise, this is a single-dimensional array and</span>
+    <span class="c"># we&#39;ll have indexing problems.</span>
+    <span class="n">impulse_minima_row_added</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_significant_minima</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">data_significant_minima</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">data_significant_minima</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">data_significant_minima</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+        <span class="n">impulse_minima_row_added</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">remainder_significant_minima</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">remainder_significant_minima</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">remainder_significant_minima</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">remainder_significant_minima</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+
+    <span class="c"># Iterate over significant data_maxima in signal</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_significant_maxima</span><span class="p">)):</span>
+
+        <span class="c"># We start a segment at either the minimum before the maximum, or half a segment width before the</span>
+        <span class="c"># maximum--whichever is later. The index of this start point is stored in segment_start. segment_end is the</span>
+        <span class="c"># index  of the start index + a segment width, or the end of the data--whichever is earlier.</span>
+        <span class="n">segment_start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">data_significant_minima</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">data_significant_maxima</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">window_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">segment_end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">segment_start</span> <span class="o">+</span> <span class="n">window_size</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">]))</span>
+
+        <span class="c"># Indices of entire segment</span>
+        <span class="n">segment_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">segment_start</span><span class="p">,</span> <span class="n">segment_end</span><span class="p">)</span>
+
+        <span class="c"># Data subsetted by segment indices</span>
+        <span class="n">segment_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">segment_indices</span><span class="p">]</span>
+
+        <span class="c"># If the window (segment) extends beyond the minimum following the maximum, zero that portion of the signal.</span>
+        <span class="n">segment_data</span><span class="p">[</span><span class="n">segment_indices</span> <span class="o">&gt;=</span> <span class="n">data_significant_minima</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c"># Save segment start index into onset vector</span>
+        <span class="n">onsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">onsets</span><span class="p">,</span> <span class="p">[</span><span class="n">segment_start</span><span class="p">])</span>
+
+        <span class="c"># Save segment signal into impulse cell array</span>
+        <span class="n">impulse_segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">segment_data</span><span class="p">)</span>
+
+        <span class="c"># Zero vector the length of the segment</span>
+        <span class="n">overshoot_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">segment_indices</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+        <span class="n">remainder_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+        <span class="c"># If we haven&#39;t reached the last significant maximum in data</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">data_significant_maxima</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+
+            <span class="c"># Get the indices of values in the vector of significant maxima extracted from the remainder that are after</span>
+            <span class="c"># the current significant maximum in data and before the next significant maximum in data</span>
+            <span class="n">remainder_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">remainder_significant_maxima</span> <span class="o">&gt;</span> <span class="n">data_significant_maxima</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&amp;</span>
+                <span class="p">(</span><span class="n">remainder_significant_maxima</span> <span class="o">&lt;</span> <span class="n">data_significant_maxima</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c"># Get the indices of values in the vector of significant maxima extracted from the remainder that are after</span>
+            <span class="c"># the current significant maximum in data</span>
+            <span class="n">remainder_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">remainder_significant_maxima</span> <span class="o">&gt;</span> <span class="n">data_significant_maxima</span><span class="p">[</span><span class="n">i</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c"># If there were no significant data_maxima in the remainder between the current significant maximum in data and the next one</span>
+        <span class="k">if</span> <span class="n">remainder_indices</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="c"># If we haven&#39;t reached the last significant maximum in data</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">data_significant_maxima</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+
+                <span class="c"># Get the indices of values in the vector of ALL maxima extracted from the remainder that are after the</span>
+                <span class="c"># current significant maximum in data and before the next significant maximum in data</span>
+                <span class="n">remainder_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">remainder_maxima</span> <span class="o">&gt;</span> <span class="n">data_significant_maxima</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&amp;</span>
+                    <span class="p">(</span><span class="n">remainder_maxima</span> <span class="o">&lt;</span> <span class="n">data_significant_maxima</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+                <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="c"># Get the indices of values in the vector of ALL maxima extracted from the remainder that are after the</span>
+                <span class="c"># current significant maximum in data</span>
+                <span class="n">remainder_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">remainder_maxima</span> <span class="o">&gt;</span> <span class="n">data_significant_maxima</span><span class="p">[</span><span class="n">i</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c"># FIXME: Pretty sure this is a bug in Ledalab.</span>
+            <span class="c"># Assign ALL remainder maxima to remainder_significant_maxima and ALL remainder minima to</span>
+            <span class="c"># remainder_significant_minima (converting to the signpeaks format for the data_minima)</span>
+            <span class="n">remainder_significant_maxima</span> <span class="o">=</span> <span class="n">remainder_maxima</span>
+            <span class="n">starts</span> <span class="o">=</span> <span class="n">remainder_minima</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">ends</span> <span class="o">=</span> <span class="n">remainder_minima</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">remainder_significant_minima</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">starts</span><span class="p">,</span> <span class="n">ends</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="c"># If there were significant data_maxima in the remainder between the current data_significant_maxima and the next one</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">remainder_indices</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="c"># Get the first one</span>
+            <span class="n">remainder_indices</span> <span class="o">=</span> <span class="n">remainder_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c"># print(remainder_indices)</span>
+
+            <span class="c"># Get the later index of either the minimum before remainder significant peak or the beginning of this</span>
+            <span class="c"># segment</span>
+            <span class="n">overshoot_start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">remainder_significant_minima</span><span class="p">[</span><span class="n">remainder_indices</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">segment_start</span><span class="p">])</span>
+
+            <span class="c"># Get the earlier index of either the minimum after remainder significant peak or the end of this segment</span>
+            <span class="n">overshoot_end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">remainder_significant_minima</span><span class="p">[</span><span class="n">remainder_indices</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">segment_end</span><span class="p">])</span>
+
+            <span class="c"># Subset remainder from overshoot_start to overshoot_end and put this vector into the appropriate bins in</span>
+            <span class="c"># overshoot_data</span>
+            <span class="n">overshoot_start_index</span> <span class="o">=</span> <span class="n">overshoot_start</span> <span class="o">-</span> <span class="n">segment_start</span>
+            <span class="n">overshoot_end_index</span> <span class="o">=</span> <span class="n">overshoot_end</span> <span class="o">-</span> <span class="n">segment_start</span>
+            <span class="n">overshoot_data</span><span class="p">[</span><span class="n">overshoot_start_index</span><span class="p">:</span><span class="n">overshoot_end_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">remainder</span><span class="p">[</span><span class="n">overshoot_start</span><span class="p">:</span><span class="n">overshoot_end</span><span class="p">]</span>
+
+        <span class="c"># Insert this segment&#39;s overshoot into the overshoot_segments cell array</span>
+        <span class="n">overshoot_segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">overshoot_data</span><span class="p">)</span>
+
+    <span class="c"># Return data_minima and data_maxima results from significant peak analysis in impulse_minima and impulse_maxima</span>
+    <span class="k">if</span> <span class="n">impulse_minima_row_added</span><span class="p">:</span>
+        <span class="n">impulse_minima</span> <span class="o">=</span> <span class="n">data_significant_minima</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">impulse_minima</span> <span class="o">=</span> <span class="n">data_significant_minima</span>
+    <span class="n">impulse_maxima</span> <span class="o">=</span> <span class="n">data_significant_maxima</span>
+
+    <span class="k">return</span> <span class="n">onsets</span><span class="p">,</span> <span class="n">impulse_segments</span><span class="p">,</span> <span class="n">overshoot_segments</span><span class="p">,</span> <span class="n">impulse_minima</span><span class="p">,</span> <span class="n">impulse_maxima</span>
+
+</div>
+<div class="viewcode-block" id="interimpulse_fit"><a class="viewcode-back" href="../../../Pypsy.signal.html#Pypsy.signal.analysis.interimpulse_fit">[docs]</a><span class="k">def</span> <span class="nf">interimpulse_fit</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">minima</span><span class="p">,</span> <span class="n">maxima</span><span class="p">,</span> <span class="n">original_time</span><span class="p">,</span> <span class="n">original_signal</span><span class="p">,</span> <span class="n">original_fs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimate the tonic EDA driver and signal. The mean (or median) of data between impulses is used to estimate the</span>
+<span class="sd">    tonic driver. This driver is then convolved with the kernel to produce the tonic signal.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    driver : array_like</span>
+<span class="sd">        The composite EDA driver</span>
+<span class="sd">    kernel : array_like</span>
+<span class="sd">        The kernel impulse response</span>
+<span class="sd">    minima : numpy.ndarray</span>
+<span class="sd">        The minima in the composite EDA driver</span>
+<span class="sd">    maxima :</span>
+<span class="sd">        The maxima in the composite EDA driver</span>
+<span class="sd">    original_time : array_like</span>
+<span class="sd">        The timestamps of the original EDA signal</span>
+<span class="sd">    original_signal : array_like</span>
+<span class="sd">        The original EDA signal</span>
+<span class="sd">    original_fs : float</span>
+<span class="sd">        The sample rate of the original EDA signal</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tonic_driver : numpy.ndarray</span>
+<span class="sd">        The estimated tonic EDA driver</span>
+<span class="sd">    tonic_data : numpy.ndarray</span>
+<span class="sd">        The estimated tonic EDA signal</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">pchip_interpolate</span>
+    <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">convolve</span>
+
+    <span class="n">tonic_driver</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="n">tonic_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+    <span class="c"># Original timestamps (comes from leda2.analysis0.target.t)</span>
+    <span class="n">original_time</span> <span class="o">=</span> <span class="n">original_time</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c"># Original EDA signal (comes from leda2.analysis0.target.d)</span>
+    <span class="n">original_signal</span> <span class="o">=</span> <span class="n">original_signal</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c"># Original sample rate (comes from leda2.analysis0.target.sr)</span>
+    <span class="n">original_fs</span> <span class="o">=</span> <span class="n">original_fs</span>
+
+    <span class="c"># Hard coded value came from observing first run during continuous analysis (comes from</span>
+    <span class="c"># leda2.set.tonicGridSize_sdeco)</span>
+    <span class="n">grid_spacing</span> <span class="o">=</span> <span class="mi">10</span>
+
+    <span class="c"># Number of samples in the kernel</span>
+    <span class="n">kernel_length</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">size</span>
+
+    <span class="c"># Get inter-impulse data index</span>
+    <span class="n">interimpulse_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;int64&#39;</span><span class="p">)</span>
+
+    <span class="c"># If there are more than two maximum indices in maxima</span>
+    <span class="k">if</span> <span class="n">maxima</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+
+        <span class="c"># Iterate from the first to the penultimate</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxima</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+
+            <span class="c"># Indices of samples between following minimum and next minimum. These indices are the indices of the gaps</span>
+            <span class="c"># between impulses.</span>
+            <span class="n">current_interimpulse_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">minima</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">minima</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="c"># Append these indices to interimpulse_indices</span>
+            <span class="n">interimpulse_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">interimpulse_indices</span><span class="p">,</span> <span class="n">current_interimpulse_indices</span><span class="p">])</span>
+
+        <span class="c"># Add the index of the first minimum for the second maximum to the beginning of interimpulse_indices. Add the index of the second minimum for the last maximum, plus all remaining samples except for the last second of data, to the end of interimpulse_indices.</span>
+        <span class="n">interimpulse_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="n">minima</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">interimpulse_indices</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">minima</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">driver</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="n">original_fs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)])</span>
+
+    <span class="c"># There weren&#39;original_time any maxima (except for first and last &#39;global&#39; maxima), so</span>
+    <span class="c"># the entire driver is tonic. Set interimpulse_indices to be all those indices where the</span>
+    <span class="c"># timestamp is greater than zero.</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c">#no peaks (exept for pre-peak and may last peak) so data represents tonic only, so ise all data for tonic estimation</span>
+        <span class="n">interimpulse_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">original_time</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">interimpulse_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">(</span><span class="n">interimpulse_indices</span><span class="p">)</span>
+
+    <span class="c"># interimpulse_times are the timestamps corresponding to the interimpulse_indices indices.</span>
+    <span class="n">interimpulse_times</span> <span class="o">=</span> <span class="n">original_time</span><span class="p">[</span><span class="n">interimpulse_indices</span><span class="p">]</span>
+
+    <span class="c"># interimpulse_data is the driver corresponding to the interimpulse_indices indices.</span>
+    <span class="n">interimpulse_data</span> <span class="o">=</span> <span class="n">driver</span><span class="p">[</span><span class="n">interimpulse_indices</span><span class="p">]</span>
+
+    <span class="c"># I don&#39;original_time know what the significance of the name grid_time is, but</span>
+    <span class="c"># grid_time is a vector from 0 to the penultimate timestamp with a step size</span>
+    <span class="c"># of grid_spacing, and the last timestamp added to the end.</span>
+    <span class="n">grid_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">original_time</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">grid_spacing</span><span class="p">)</span>
+    <span class="n">grid_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">grid_time</span><span class="p">,</span> <span class="p">[</span><span class="n">original_time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]])</span>
+
+    <span class="c">### I don&#39;original_time know why they do this...</span>
+    <span class="k">if</span> <span class="n">grid_spacing</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">:</span>
+        <span class="n">grid_spacing</span> <span class="o">=</span> <span class="n">grid_spacing</span> <span class="o">*</span> <span class="mi">2</span>
+
+    <span class="c"># Initialize vector of ground levels</span>
+    <span class="n">tonic_level</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">grid_time</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+    <span class="c"># Iterate over length of grid_time vector</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">grid_time</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+
+        <span class="c"># Select relevant interimpulse time points for tonic estimate at</span>
+        <span class="c"># grid_time</span>
+
+        <span class="c"># If i represents the first grid_time entry</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="c"># time_indices is all inter-impulse timestamp indices that are less than or equal</span>
+            <span class="c"># to the first grid_time entry plus the grid size, and greater</span>
+            <span class="c"># than one.</span>
+            <span class="n">time_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">((</span><span class="n">interimpulse_times</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">grid_time</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">grid_spacing</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">interimpulse_times</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c"># grid_indices is the same except using all timestamps.</span>
+            <span class="n">grid_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">((</span><span class="n">original_time</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">grid_time</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">grid_spacing</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">original_time</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c"># If i represents the last grid_time entry</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="n">grid_time</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+
+            <span class="c"># time_indices is all inter-impulse timestamp indices that are after the last</span>
+            <span class="c"># grid_time entry minus the grid size, and less than the last</span>
+            <span class="c"># overall timestamp minus one second.</span>
+            <span class="n">time_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">((</span><span class="n">interimpulse_times</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">grid_time</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">grid_spacing</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">interimpulse_times</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">original_time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c"># grid_indices is the same except using all timestamps.</span>
+            <span class="n">grid_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">((</span><span class="n">original_time</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">grid_time</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">grid_spacing</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">original_time</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">original_time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c"># time_indices is all inter-impulse timestamp indices that are a half a grid size</span>
+            <span class="c"># before and after grid_time(i)</span>
+            <span class="c"># TODO: The spacing calculated here is different from Ledalab. Confirm that this is a bug in Ledalab.</span>
+            <span class="n">time_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">((</span><span class="n">interimpulse_times</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">grid_time</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">grid_spacing</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">interimpulse_times</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">grid_time</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">grid_spacing</span><span class="o">/</span><span class="mi">2</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c"># grid_indices is the same except using all timestamps.</span>
+            <span class="n">grid_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">((</span><span class="n">original_time</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">grid_time</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">grid_spacing</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">original_time</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">grid_time</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">grid_spacing</span><span class="o">/</span><span class="mi">2</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c"># Estimate tonic_level at grid_time</span>
+        <span class="c"># If there are more than two inter-impulse timestamps in this grid</span>
+        <span class="c"># window</span>
+        <span class="k">if</span> <span class="n">time_indices</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+
+            <span class="c"># Take the ground level as the minimum of the mean of inter-impulse</span>
+            <span class="c"># data over the window, or the original signal at the nearest</span>
+            <span class="c"># possible time index.</span>
+            <span class="n">closest_index</span><span class="p">,</span> <span class="n">closest_time</span> <span class="o">=</span> <span class="n">Pypsy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">closest_time_index</span><span class="p">(</span><span class="n">original_time</span><span class="p">,</span> <span class="n">grid_time</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">tonic_level</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">interimpulse_data</span><span class="p">[</span><span class="n">time_indices</span><span class="p">]),</span>  <span class="n">original_signal</span><span class="p">[</span><span class="n">closest_index</span><span class="p">]]))</span>
+
+        <span class="c"># If there are two or fewer inter-impulse timestamps in this grid</span>
+        <span class="c"># window</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c"># Take the ground level as the minimum of the median of</span>
+            <span class="c"># inter-impulse data over the window, or the original signal at the</span>
+            <span class="c"># nearest possible time index.</span>
+            <span class="n">closest_index</span><span class="p">,</span> <span class="n">closest_time</span> <span class="o">=</span> <span class="n">Pypsy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">closest_time_index</span><span class="p">(</span><span class="n">original_time</span><span class="p">,</span> <span class="n">grid_time</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">tonic_level</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">driver</span><span class="p">[</span><span class="n">grid_indices</span><span class="p">]),</span>  <span class="n">original_signal</span><span class="p">[</span><span class="n">closest_index</span><span class="p">]])</span>
+
+    <span class="c"># tonic_driver is the tonic_level signal PCHIP interpolated across the</span>
+    <span class="c"># original timestamps</span>
+    <span class="n">tonic_driver</span> <span class="o">=</span> <span class="n">pchip_interpolate</span><span class="p">(</span><span class="n">grid_time</span><span class="p">,</span> <span class="n">tonic_level</span><span class="p">,</span> <span class="n">original_time</span><span class="p">)</span>
+
+    <span class="c"># Stash currently-computed data</span>
+    <span class="n">grid_time_stored</span> <span class="o">=</span> <span class="n">grid_time</span>
+    <span class="n">tonic_level_stored</span> <span class="o">=</span> <span class="n">tonic_level</span>
+    <span class="n">tonic_driver_stored</span> <span class="o">=</span> <span class="n">tonic_driver</span>
+
+    <span class="c"># Prepend tonic_driver with a kernel-length of the initial value and</span>
+    <span class="c"># convolve it with the kernel.</span>
+    <span class="n">tonic_driver_extended</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">kernel_length</span><span class="p">)</span> <span class="o">*</span> <span class="n">tonic_driver</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tonic_driver</span><span class="p">])</span>
+    <span class="n">tonic_data</span> <span class="o">=</span> <span class="n">convolve</span><span class="p">(</span><span class="n">tonic_driver_extended</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
+
+    <span class="c"># Trim kernel length from beginning and end of convolved signal</span>
+    <span class="n">tonic_data</span> <span class="o">=</span> <span class="n">tonic_data</span><span class="p">[</span><span class="n">kernel_length</span><span class="p">:</span><span class="n">tonic_data</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="n">kernel_length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="c"># Stash data</span>
+    <span class="n">tonic_data_stored</span> <span class="o">=</span> <span class="n">tonic_data</span>
+
+    <span class="c"># Correction for tonic sections still higher than raw data</span>
+    <span class="c"># Move closest grid_time at time of maximum difference of tonic surpassing data</span>
+
+    <span class="c"># Iterate i from length(grid_time) - 1 down to 0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">grid_time</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+
+        <span class="c"># Get subrange of original timestamps that are closest to our</span>
+        <span class="c"># grid_time timestamps</span>
+        <span class="n">time_indices</span> <span class="o">=</span> <span class="n">Pypsy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">subrange_indices</span><span class="p">(</span><span class="n">original_time</span><span class="p">,</span> <span class="n">grid_time</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">grid_time</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c"># Find the max in the tonic data convolved with the kernel plus a</span>
+        <span class="c"># minimum allowable distance (defaults to 0) minus the original signal</span>
+        <span class="n">minimum_difference</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">difference</span> <span class="o">=</span> <span class="p">(</span><span class="n">tonic_data</span><span class="p">[</span><span class="n">time_indices</span><span class="p">]</span> <span class="o">+</span> <span class="n">minimum_difference</span><span class="p">)</span> <span class="o">-</span> <span class="n">original_signal</span><span class="p">[</span><span class="n">time_indices</span><span class="p">]</span>
+        <span class="n">maximum_difference</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">difference</span><span class="p">)</span>
+
+        <span class="c"># If this max is greater than the distance from 1.0 to the next larget</span>
+        <span class="c"># double-precision number (2.2204e-16)</span>
+        <span class="k">if</span> <span class="n">maximum_difference</span> <span class="o">&gt;</span> <span class="n">eps</span><span class="p">:</span>
+
+            <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">difference</span> <span class="o">==</span> <span class="n">maximum_difference</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c"># Subtract this max from this tonic_level and the next</span>
+            <span class="n">tonic_level</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">tonic_level</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">maximum_difference</span>
+            <span class="n">tonic_level</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tonic_level</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">maximum_difference</span>
+
+            <span class="c"># Interpolate tonic_driver and convolve again</span>
+            <span class="n">tonic_driver</span> <span class="o">=</span> <span class="n">pchip_interpolate</span><span class="p">(</span><span class="n">grid_time</span><span class="p">,</span> <span class="n">tonic_level</span><span class="p">,</span> <span class="n">original_time</span><span class="p">)</span>
+            <span class="n">tonic_driver_extended</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">kernel_length</span><span class="p">)</span> <span class="o">*</span> <span class="n">tonic_driver</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tonic_driver</span><span class="p">])</span>
+            <span class="n">tonic_data</span> <span class="o">=</span> <span class="n">convolve</span><span class="p">(</span><span class="n">tonic_driver_extended</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
+
+            <span class="c"># Trim kernel length from beginning and end of convolved signal</span>
+            <span class="n">tonic_data</span> <span class="o">=</span> <span class="n">tonic_data</span><span class="p">[</span><span class="n">kernel_length</span><span class="p">:</span><span class="n">tonic_data</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="n">kernel_length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="c"># FIXME: The actual Ledalab function saves all this analysis (and the piecewise polynomial) back to globals</span>
+
+    <span class="k">return</span> <span class="n">tonic_driver</span><span class="p">,</span> <span class="n">tonic_data</span>
+
+</div>
+<div class="viewcode-block" id="fit_error"><a class="viewcode-back" href="../../../Pypsy.signal.html#Pypsy.signal.analysis.fit_error">[docs]</a><span class="k">def</span> <span class="nf">fit_error</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fit</span><span class="p">,</span> <span class="n">npar</span><span class="p">,</span> <span class="n">errortype</span><span class="o">=</span><span class="s">&#39;MSE&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the fit error for a model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : array_like</span>
+<span class="sd">        The original data</span>
+<span class="sd">    fit : array_like</span>
+<span class="sd">        The fitted data generated by the model</span>
+<span class="sd">    npar : int</span>
+<span class="sd">        Number of model parameters</span>
+<span class="sd">    errortype : str</span>
+<span class="sd">        The type of error to calculate. Available options are ``&#39;MSE&#39;`` (default), ``&#39;RMSE&#39;``, and ``&#39;adjR2&#39;``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    out : float</span>
+<span class="sd">        The model error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Residual is difference between data and model</span>
+    <span class="n">residual</span> <span class="o">=</span> <span class="n">data</span> <span class="o">-</span> <span class="n">fit</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span>
+
+    <span class="c"># Degrees of freedom = length of signal minus number of parameters</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">npar</span>
+
+    <span class="c"># Calculate sum of squared errors</span>
+    <span class="n">SSE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">residual</span><span class="o">**</span><span class="mi">2</span><span class="p">);</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">errortype</span> <span class="o">==</span> <span class="s">&#39;MSE&#39;</span><span class="p">:</span>
+
+        <span class="c"># Mean squared error</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">SSE</span> <span class="o">/</span> <span class="n">n</span>
+
+    <span class="k">elif</span> <span class="n">errortype</span> <span class="o">==</span> <span class="s">&#39;RMSE&#39;</span><span class="p">:</span>
+
+        <span class="c"># Root mean squared error</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">SSE</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">errortype</span> <span class="o">==</span> <span class="s">&#39;adjR2&#39;</span><span class="p">:</span>
+
+        <span class="c"># Adjusted r-squared</span>
+        <span class="c"># For optimization use 1 - adjR2 since we want to minimize the function</span>
+        <span class="n">SST</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">SSE</span> <span class="o">/</span> <span class="n">SST</span><span class="p">)</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">r2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">/</span> <span class="n">df</span>
+
+        <span class="c"># FIXME: Is Chi-squared ever used in Ledalab? If so, this should be ported.</span>
+        <span class="c"># Chi-squared</span>
+        <span class="c"># case &#39;Chi2&#39;</span>
+        <span class="c">#     error = SSE/leda2.data.conductance.error;</span>
+
+    <span class="k">return</span> <span class="n">error</span>
+</pre></div></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Brennon Bortz.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
