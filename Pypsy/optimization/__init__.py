@@ -2,6 +2,42 @@ import numpy as np
 import numpy.linalg
 
 def cgd(start_val, error_fcn, h, crit_error, crit_iter, crit_h):
+    """
+    Conjugate gradient descent to optimize :math:`\\tau` parameters for EDA signal decomposition.
+
+    Parameters
+    ----------
+    start_val : array_like
+        The initial :math:`\\tau` parameters with :math:`\\tau_1` in ``tau[0]`` and :math:`\\tau_2` in ``tau[1]``
+    error_fcn : function
+        The error function to minimize. Should return a single ``float``.
+    h : array_like
+        The initial step sizes for the :math:`\\tau` parameters. Should match the shape of ``start_val``.
+    crit_error : float
+        Stopping criterion value for ``error_fcn``
+    crit_iter : int
+        Maximum number of iterations
+    crit_h : float
+        Minimum step size
+
+    Returns
+    -------
+    x : :py:class:`numpy.ndarray`
+        The optimized :math:`\\tau` parameters
+    history : dict
+        A record of the gradient descent process
+
+    Raises
+    ------
+    TypeError
+        If ``start_val`` or ``h`` are not array-like (cannot be converted to a :py:class:`numpy.ndarray` using
+        :py:meth:`numpy.array()`)
+    """
+
+    # FIXME: Add tests
+
+    start_val = np.asarray(start_val)
+    h = np.asarray(h)
 
     x = start_val
     newerror, _ = error_fcn(x)
@@ -58,6 +94,36 @@ def cgd(start_val, error_fcn, h, crit_error, crit_iter, crit_h):
     return x, history
 
 def cgd_get_gradient(x, error0, error_fcn, h):
+    """
+    Calculate the current gradient of an error function.
+
+    Parameters
+    ----------
+    x : array_like
+        The current parameter values
+    error0 : float
+        The current error
+    error_fcn : function
+        The error function
+    h : array_like
+        The current step sizes for each parameter in ``x``
+
+    Returns
+    -------
+    out : float
+        The computed gradient
+
+    Raises
+    ------
+    TypeError
+        If ``x`` or ``h`` are not array-like (cannot be converted to a :py:class:`numpy.ndarray` using
+        :py:meth:`numpy.array()`)
+    """
+
+    # FIXME: Add tests
+
+    x = np.asarray(x)
+    h = np.asarray(h)
 
     # Length of x
     Npars = x.size
@@ -111,6 +177,48 @@ def cgd_get_gradient(x, error0, error_fcn, h):
     return gradient
 
 def cgd_linesearch(x, error0, direction, error_fcn, h):
+    """
+    Calculate optimal step size for gradient descent (line search).
+
+    Parameters
+    ----------
+    x : array_like
+        The current parameter values
+    error0 : float
+        The current error
+    direction : array_like
+        The calculated step directions/magnitudes for each parameter in ``x``
+    error_fcn : function
+        The error function
+    h : array_like
+        The current step sizes for each parameter in ``x``
+
+    Returns
+    -------
+    out : float
+        The computed gradient
+
+    Returns
+    -------
+    xc : :py:class:`numpy.ndarray`
+        The new parameter values given the selected steps
+    error1 : float
+        The new value of ``error_fcn`` for the new parameters in ``xc``
+    step : float
+        The number of steps taken to reach these ``xc`` and ``error1``
+
+    Raises
+    ------
+    TypeError
+        If ``x``, ``direction``, or ``h`` are not array-like (cannot be converted to a :py:class:`numpy.ndarray` using
+        :py:meth:`numpy.array()`)
+    """
+
+    # FIXME: Add tests
+
+    x = np.asarray(x)
+    direction = np.asarray(direction)
+    h = np.asarray(h)
 
     direction_n = direction / np.linalg.norm(direction, ord=2)
     error_list = [error0]

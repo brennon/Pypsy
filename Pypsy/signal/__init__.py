@@ -35,7 +35,6 @@ class Signal(object):
     ValueError
         If ``data`` and ``time`` are not the same length
     TypeError
-        TypeError
         If either of ``time`` or ``data`` are not array-like (cannot be converted to a :py:class:`numpy.ndarray` using
         :py:meth:`numpy.array()`)
 
@@ -120,6 +119,10 @@ class EDASignal(Signal):
     >>> data = [1, 2, 3]
     >>> time = [0.1, 0.2, 0.3]
     >>> sig = EDASignal(data, time)
+    >>> sig.data
+    array([ 1.,  2.,  3.])
+    >>> sig.time
+    array([ 0.1,  0.2,  0.3])
     """
 
     def __init__(self, data, time):
@@ -135,8 +138,8 @@ class EDASignal(Signal):
         self.tonic_data = np.array([], dtype=np.float64)
         self.tonic_driver = np.array([], dtype=np.float64)
         self.error = dict()
-        self.error['MSE'] = None
-        self.error['RMSE'] = None
+        self.error['mse'] = None
+        self.error['rmse'] = None
         self.error['discreteness'] = None
         self.error['negativity'] = None
         self.error['compound'] = None
@@ -151,6 +154,80 @@ class EDASignal(Signal):
         optimize : bool
             When ``True``, the parameters in ``self.tau`` are optimized to minimize error. When ``False``, the current
             values of ``self.tau`` are used for decomposition.
+            
+        Examples
+        --------
+        >>> sig = EDASignal.from_file('tests/test_not_decomposed.eda_signal')
+        >>> sig.decompose_signal(optimize=False)
+        >>> saved = EDASignal.from_file('tests/test_decomposed_unoptimized.eda_signal')
+        >>> np.all(sig.composite_driver == saved.composite_driver)
+        True
+        >>> np.all(sig.composite_driver_remainder == saved.composite_driver_remainder)
+        True
+        >>> np.all(sig.data == saved.data)
+        True
+        >>> np.all(sig.kernel == saved.kernel)
+        True
+        >>> np.all(sig.phasic_data == saved.phasic_data)
+        True
+        >>> np.all(sig.phasic_driver == saved.phasic_driver)
+        True
+        >>> np.all(sig.phasic_driver_raw == saved.phasic_driver_raw)
+        True
+        >>> np.all(sig.tau == saved.tau)
+        True
+        >>> np.all(sig.time == saved.time)
+        True
+        >>> np.all(sig.tonic_data == saved.tonic_data)
+        True
+        >>> np.all(sig.tonic_driver == saved.tonic_driver)
+        True
+        >>> sig.error['mse'] == saved.error['mse']
+        True
+        >>> sig.error['rmse'] == saved.error['rmse']
+        True
+        >>> sig.error['discreteness'] == saved.error['discreteness']
+        True
+        >>> sig.error['negativity'] == saved.error['negativity']
+        True
+        >>> sig.error['compound'] == saved.error['compound']
+        True
+
+        >>> sig = EDASignal.from_file('tests/test_not_decomposed.eda_signal')
+        >>> sig.decompose_signal(optimize=True)
+        >>> saved = EDASignal.from_file('tests/test_decomposed_optimized.eda_signal')
+        >>> np.all(sig.composite_driver == saved.composite_driver)
+        True
+        >>> np.all(sig.composite_driver_remainder == saved.composite_driver_remainder)
+        True
+        >>> np.all(sig.data == saved.data)
+        True
+        >>> np.all(sig.kernel == saved.kernel)
+        True
+        >>> np.all(sig.phasic_data == saved.phasic_data)
+        True
+        >>> np.all(sig.phasic_driver == saved.phasic_driver)
+        True
+        >>> np.all(sig.phasic_driver_raw == saved.phasic_driver_raw)
+        True
+        >>> np.all(sig.tau == saved.tau)
+        True
+        >>> np.all(sig.time == saved.time)
+        True
+        >>> np.all(sig.tonic_data == saved.tonic_data)
+        True
+        >>> np.all(sig.tonic_driver == saved.tonic_driver)
+        True
+        >>> sig.error['mse'] == saved.error['mse']
+        True
+        >>> sig.error['rmse'] == saved.error['rmse']
+        True
+        >>> sig.error['discreteness'] == saved.error['discreteness']
+        True
+        >>> sig.error['negativity'] == saved.error['negativity']
+        True
+        >>> sig.error['compound'] == saved.error['compound']
+        True
         """
 
         import Pypsy.optimization
@@ -161,6 +238,24 @@ class EDASignal(Signal):
             self._decompose(self.tau)
 
     def _decompose(self, tau):
+        """
+        Decompose the EDA signal into its tonic and phasic components using the specified :math:`\\tau_1` and
+        :math:`\\tau_2` in ``tau``. This decomposition is identical to the continuous analysis performed by
+        `Ledalab <http:www.ledalab.de>`_.
+
+        Parameters
+        ----------
+        tau : array_like
+            :math:`\\tau_1` should be at ``tau[0]`` and :math:`\\tau_2` should be at ``tau[1]``.
+
+        Raises
+        ------
+        TypeError
+            If either of ``tau`` is not array-like (cannot be converted to a :py:class:`numpy.ndarray` using
+            :py:meth:`numpy.array()`)
+        """
+
+        tau = np.asarray(tau)
 
         # Ensure that parameters are within limits
         tau[0] = Pypsy.constrain(tau[0], .001, 10)

@@ -152,6 +152,9 @@ def bateman_gauss(time, onset=0, amplitude=0, tau1=3.75, tau2=0.5, sigma=0):
         If ``time`` is not array-like (cannot be converted to a :py:class:`numpy.ndarray` using
         :py:meth:`numpy.array()`)
     """
+
+    # FIXME: Add tests
+
     from scipy.stats import norm
     from scipy.signal import convolve
 
@@ -676,6 +679,8 @@ def interimpulse_fit(driver, kernel, minima, maxima, original_time, original_sig
         The estimated tonic EDA signal
     """
 
+    # FIXME: Add tests
+
     from scipy.interpolate import pchip_interpolate
     from scipy.signal import convolve
 
@@ -882,6 +887,17 @@ def fit_error(data, fit, npar, errortype='MSE'):
     -------
     out : float
         The model error
+
+    Examples
+    --------
+    >>> data = np.array([-1.0, -0.5, 0, 0.5, 1])
+    >>> fit = np.array([0.0, 0, 0, 0, 0])
+    >>> fit_error(data, fit, 0, errortype='MSE')
+    0.5
+    >>> np.abs(fit_error(data, fit, 0, errortype='RMSE') - 0.70710678118654757) < 0.001
+    True
+    >>> np.abs(fit_error(data, fit, 0, errortype='adjR2') - 0.43431457505076199) < 0.001
+    True
     """
 
     # Residual is difference between data and model
