@@ -12,6 +12,22 @@ Pypsy.signal.analysis module
     :undoc-members:
     :show-inheritance:
 
+Pypsy.signal.conversion module
+------------------------------
+
+.. automodule:: Pypsy.signal.conversion
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Pypsy.signal.filter module
+--------------------------
+
+.. automodule:: Pypsy.signal.filter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Pypsy.signal.utilities module
 -----------------------------
 
