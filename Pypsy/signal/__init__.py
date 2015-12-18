@@ -1,7 +1,8 @@
 import numpy as np
 import scipy.signal
-import Pypsy.signal.utilities
-import Pypsy.signal.analysis
+
+from .utilities import *
+from .analysis import *
 
 __author__ = 'Brennon Bortz'
 
@@ -270,7 +271,7 @@ class EDASignal(Signal):
             tau[1] = tau[1] + .01
 
         # Resample at 25Hz
-        Pypsy.signal.utilities.resample_signal(self, 25.0)
+        resample_signal(self, 25.0)
 
         d = self.data.copy()
         t = self.time.copy() # Set in MATLAB as leda2.analysis0.target.t
@@ -289,7 +290,7 @@ class EDASignal(Signal):
         tb = t - t[0] + dt
 
         # Get a smoothed Bateman output with predefined parameters
-        bg = Pypsy.signal.analysis.bateman_gauss(tb, 5, 1, 2, 40, .4)
+        bg = bateman_gauss(tb, 5, 1, 2, 40, .4)
 
         # Get the index of the max of the Bateman output
         idx = np.argmax(bg)
@@ -331,7 +332,7 @@ class EDASignal(Signal):
         # an amplitude of zero (the amplitude is scaled in this case within
         # bateman.m), the user-provided taus, and a standard deviation for the
         # Gaussian window of 0
-        kernel = Pypsy.signal.analysis.bateman_gauss(tb, 0, 0, tau1, tau2, 0)
+        kernel = bateman_gauss(tb, 0, 0, tau1, tau2, 0)
 
         # Adaptive kernel size
         # Find the index of the maximum amplitude of the kernel
@@ -363,7 +364,7 @@ class EDASignal(Signal):
         driverSC, remainderSC = scipy.signal.deconvolve(extended_d_ext, kernel)
 
         # Smooth the driver function with a Gaussian
-        driverSC_smooth = Pypsy.signal.utilities.smooth(driverSC, swin, 'gauss')
+        driverSC_smooth = smooth(driverSC, swin, 'gauss')
 
         # Remove prefix from driver, smoothed driver, and remainder. Also trim tail
         # of remainder.
@@ -372,7 +373,7 @@ class EDASignal(Signal):
         remainderSC = remainderSC[n_prefix:d.size + n_prefix]
 
         # Segment driver sections (hardcoded 12 is from leda2.set.segmWidth)
-        onset_idx, impulse, overshoot, impMin, impMax = Pypsy.signal.analysis.segment_driver(
+        onset_idx, impulse, overshoot, impMin, impMax = segment_driver(
             driverSC_smooth,
             np.zeros(driverSC_smooth.size),
             sigc,
@@ -380,12 +381,12 @@ class EDASignal(Signal):
         )
 
         # Estimate tonic
-        tonic_driver, tonic_data = Pypsy.signal.analysis.interimpulse_fit(driverSC_smooth, kernel, impMin, impMax, t, d, 25.)
+        tonic_driver, tonic_data = interimpulse_fit(driverSC_smooth, kernel, impMin, impMax, t, d, 25.)
 
         # Build tonic and phasic data
         phasic_data = d - tonic_data
         phasicDriverRaw = driverSC - tonic_driver
-        phasicDriver = Pypsy.signal.utilities.smooth(phasicDriverRaw, swin, 'gauss')
+        phasicDriver = smooth(phasicDriverRaw, swin, 'gauss')
 
         # Compute model error
 
@@ -395,7 +396,7 @@ class EDASignal(Signal):
 
         # succnz here returns a the ratio of driver instance greater than a criterion
         # value to the entire signal
-        err1s = Pypsy.signal.utilities.nonzero_portion(phasicDriver, max(.01, max(phasicDriver) / 20.), 2., sr)
+        err1s = nonzero_portion(phasicDriver, max(.01, max(phasicDriver) / 20.), 2., sr)
 
         # Get the negative portion of the phasic driver
         phasicDriverNeg = phasicDriver.copy()
@@ -411,7 +412,7 @@ class EDASignal(Signal):
         err = err_discreteness + err_negativity * alpha
 
         # Other error measures
-        err_MSE = Pypsy.signal.analysis.fit_error(self.data, tonic_data + phasic_data, 0, 'MSE')
+        err_MSE = fit_error(self.data, tonic_data + phasic_data, 0, 'MSE')
         err_RMSE = np.sqrt(err_MSE)
 
         # Save results
