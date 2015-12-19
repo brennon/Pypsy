@@ -87,6 +87,69 @@ class Signal(object):
         self.original_data = np.array(data)
         self.original_time = np.array(time)
 
+    def collapse_timestamps(self, method='mean'):
+        r"""
+        Collapse duplicate timestamps of a signal.
+
+        If a signal's ``time`` vector contains duplicate entries,
+        this method will combine these duplicate entries. All corresponding
+        entries in the signal's ``data`` vector will be handled according to
+        the ``method`` parameter. When ``'mean'`` is specified, the mean of
+        corresponding entries in the signal's ``data`` vector will be taken,
+        and when ``'median'`` is specified, the median of corresponding
+        entries in ``data`` will be taken.
+
+        Parameters
+        ----------
+        method : str, optional
+            The method to use for collapsing corresponding entries in the
+            signal's ``data`` vector (the default is ``'mean'``.)
+
+        Examples
+        -------
+        >>> e = Signal( \
+        ...     data=[1,2,3,4,5,6,7,8,9], \
+        ...     time=[1,1,1,2,2,2,3,3,3] \
+        ... )
+        >>> e.collapse_timestamps()
+        >>> expected_data = np.array([2., 5., 8.])
+        >>> expected_time = np.array([1., 2., 3.])
+        >>> np.testing.assert_almost_equal(e.data, expected_data)
+        >>> np.testing.assert_almost_equal(e.time, expected_time)
+
+        >>> e = Signal( \
+        ...     data=[1,2,7,-1,5,6,7,8,9], \
+        ...     time=[1,1,1,2,2,2,3,3,3] \
+        ... )
+        >>> e.collapse_timestamps(method='median')
+        >>> expected_data = np.array([2., 5., 8.])
+        >>> expected_time = np.array([1., 2., 3.])
+        >>> np.testing.assert_almost_equal(e.data, expected_data)
+        >>> np.testing.assert_almost_equal(e.time, expected_time)
+        """
+
+        # Get unique timestamps
+        collapsed_time = np.unique(self.time)
+
+        # New data vector
+        collapsed_data = np.zeros(collapsed_time.size)
+
+        collapse_function = None
+        if method == 'mean':
+            collapse_function = np.mean
+        else:
+            collapse_function = np.median
+
+        # Iterate over times
+        for index, t in enumerate(collapsed_time):
+
+            # Find all indices that match this time
+            matching_data = self.data[self.time == t]
+            collapsed_data[index] = collapse_function(matching_data)
+
+        self.time = collapsed_time
+        self.data = collapsed_data
+
 
 class EDASignal(Signal):
     """
