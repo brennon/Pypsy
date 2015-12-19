@@ -9,7 +9,7 @@ __author__ = 'Brennon Bortz'
 
 class Signal(object):
     """
-    `Signal` represents a basic signal and timestamps for this signal.
+    ``Signal`` represents a basic signal and timestamps for this signal.
 
     Parameters
     ----------
@@ -19,6 +19,10 @@ class Signal(object):
     time : array_like
         The times (in seconds) at which the signal was sampled. ``time[x]`` is
         the time at which the measure of the signal at ``data[x]`` was taken.
+    convert_time : function, optional
+        A function that should be used to convert the values in ``time`` to
+        seconds. If provided, this function should accept the entire ``time``
+        array as its single argument.
 
     Attributes
     ----------
@@ -59,6 +63,11 @@ class Signal(object):
     >>> sig.original_data.tolist() == data
     True
 
+    >>> time = [0, 10, 20]
+    >>> sig = Signal(data, time, convert_time=lambda x: x / 1000.)
+    >>> sig.time.tolist()
+    [0.0, 0.01, 0.02]
+
     >>> Signal(data, time[:-1])
     Traceback (most recent call last):
         ...
@@ -73,7 +82,7 @@ class Signal(object):
     data = np.array([])
     time = np.array([])
 
-    def __init__(self, data, time):
+    def __init__(self, data, time, convert_time=None):
         data = np.asarray(data, dtype=np.float64)
         time = np.asarray(time, dtype=np.float64)
 
@@ -83,7 +92,13 @@ class Signal(object):
 
         # Store original copy of data and time, and working copies
         self.data = np.array(data)
-        self.time = np.array(time)
+
+        # Convert timestamps if a conversion function was provided
+        if convert_time is not None:
+            self.time = convert_time(np.array(time))
+        else:
+            self.time = np.array(time)
+
         self.original_data = np.array(data)
         self.original_time = np.array(time)
 
