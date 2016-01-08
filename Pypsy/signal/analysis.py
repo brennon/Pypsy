@@ -185,7 +185,7 @@ def bateman_gauss(time, onset=0, amplitude=0, tau1=3.75, tau2=0.5, sigma=0):
 
         # Scale the amplitude of the window to equal the maximum amplitude of
         # the Bateman function output.
-        g = g / np.max(g) * amplitude;
+        g = g / np.max(g) * amplitude
 
         # Convolve the extended Bateman function output with the Gaussian
         # window.
