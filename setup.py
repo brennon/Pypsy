@@ -5,7 +5,7 @@ except ImportError:
 
 setup(
     name='Pypsy',
-    version='0.1.0',
+    version='0.1.1',
     packages=['Pypsy'],
     install_requires=[
         'numpy',
