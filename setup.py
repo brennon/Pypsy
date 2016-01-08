@@ -1,12 +1,9 @@
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(
     name='Pypsy',
-    version='0.1.1',
-    packages=['Pypsy'],
+    version='0.1.2',
+    packages=find_packages(exclude=['tests']),
     install_requires=[
         'numpy',
         'scipy'
