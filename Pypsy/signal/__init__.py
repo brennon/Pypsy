@@ -259,8 +259,8 @@ class EDASignal(Signal):
     array([ 0.1,  0.2,  0.3])
     """
 
-        super().__init__(data, time, convert_time)
     def __init__(self, *args, **kwargs):
+        super(EDASignal, self).__init__(*args, **kwargs)
 
         self.composite_driver = np.array([], dtype=np.float64)
         self.composite_driver_remainder = np.array([], dtype=np.float64)
