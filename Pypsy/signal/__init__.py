@@ -223,6 +223,9 @@ class EDASignal(Signal):
         The times (in seconds) at which the signal was sampled. ``time[x]``
         is the time at which the measure of the signal at ``data[x]`` was
         taken.
+    kwargs
+        Additional keyword arguments are passed on to the
+        :py:class:`Pypsy.signal.Signal` constructor.
 
     Attributes
     ----------
@@ -256,8 +259,8 @@ class EDASignal(Signal):
     array([ 0.1,  0.2,  0.3])
     """
 
-    def __init__(self, data, time, convert_time=None):
         super().__init__(data, time, convert_time)
+    def __init__(self, *args, **kwargs):
 
         self.composite_driver = np.array([], dtype=np.float64)
         self.composite_driver_remainder = np.array([], dtype=np.float64)
