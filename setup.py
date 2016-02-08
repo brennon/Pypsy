@@ -6,7 +6,8 @@ setup(
     packages=find_packages(exclude=['tests']),
     install_requires=[
         'numpy',
-        'scipy'
+        'scipy',
+        'sklearn'
     ],
     url='http://www.musicsensorsemotion.com',
     license='MIT',
