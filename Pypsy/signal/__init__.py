@@ -8,7 +8,7 @@ __author__ = 'Brennon Bortz'
 
 
 class Signal(object):
-    """
+    r"""
     ``Signal`` represents a basic signal and timestamps for this signal.
 
     Parameters
@@ -68,6 +68,25 @@ class Signal(object):
     >>> sig.time.tolist()
     [0.0, 0.01, 0.02]
 
+    >>> sig = Signal(data=[1,2,3,4,5,6,7,8,9], \
+    ...     time=[1,1,1,2,2,2,3,3,3], \
+    ...     collapse_timestamps=True)
+    >>> expected_data = np.array([2., 5., 8.])
+    >>> expected_time = np.array([1., 2., 3.])
+    >>> np.testing.assert_almost_equal(sig.data, expected_data)
+    >>> np.testing.assert_almost_equal(sig.time, expected_time)
+
+    >>> sig = Signal( \
+    ...     data=[1,2,7,-1,5,6,7,8,9], \
+    ...     time=[1,1,1,2,2,2,3,3,3], \
+    ...     collapse_timestamps=True, \
+    ...     collapse_method='median' \
+    ... )
+    >>> expected_data = np.array([2., 5., 8.])
+    >>> expected_time = np.array([1., 2., 3.])
+    >>> np.testing.assert_almost_equal(sig.data, expected_data)
+    >>> np.testing.assert_almost_equal(sig.time, expected_time)
+
     >>> Signal(data, time[:-1])
     Traceback (most recent call last):
         ...
@@ -82,7 +101,13 @@ class Signal(object):
     data = np.array([])
     time = np.array([])
 
-    def __init__(self, data, time, convert_time=None):
+    def __init__(self,
+                 data,
+                 time,
+                 convert_time=None,
+                 collapse_timestamps=False,
+                 collapse_method=None):
+
         data = np.asarray(data, dtype=np.float64)
         time = np.asarray(time, dtype=np.float64)
 
@@ -101,6 +126,14 @@ class Signal(object):
 
         self.original_data = np.array(data)
         self.original_time = np.array(time)
+
+        # Collapse timestamps if specified
+        if collapse_timestamps:
+            if collapse_method is not None:
+                self.collapse_timestamps(method=collapse_method)
+            else:
+                self.collapse_timestamps()
+
 
     def collapse_timestamps(self, method='mean'):
         r"""
