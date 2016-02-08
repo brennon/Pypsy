@@ -351,15 +351,17 @@ class EDASignal(Signal):
         >>> sig.error['compound'] == saved.error['compound']
         True
         """
-
-        if optimize:
-            # FIXME: cgd should have no knowledge of EDASignal
-            # (Updated tau are a side effect in cgd)
-            x, history = Pypsy.optimization.cgd(
-                self.tau, self._decompose, np.array([.3, 2]), .01, 20, .05
-            )
-        else:
-            self._decompose(self.tau)
+        try:
+            if optimize:
+                # FIXME: cgd should have no knowledge of EDASignal
+                # (Updated tau are a side effect in cgd)
+                x, history = Pypsy.optimization.cgd(
+                    self.tau, self._decompose, np.array([.3, 2]), .01, 20, .05
+                )
+            else:
+                self._decompose(self.tau)
+        except IndexError:
+            raise RuntimeWarning('Signal is not long enough for decomposition')
 
     def _decompose(self, tau):
         """
