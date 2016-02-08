@@ -22,7 +22,15 @@ class Signal(object):
     convert_time : function, optional
         A function that should be used to convert the values in ``time`` to
         seconds. If provided, this function should accept the entire ``time``
-        array as its single argument.
+        array as its single argument (default= ``None`` ).
+    collapse_timestamps : bool, optional
+        If ``True``, use :py:meth:`Pypsy.signal.Signal.collapse_timestamps` to
+        collapse the signal's timestamps (default= ``None`` ).
+    collapse_method : str, optional
+        If provided, this is passed as the ``method`` parameter for
+        :py:meth:`Pypsy.signal.Signal.collapse_timestamps`
+        (default= ``None`` ).
+
 
     Attributes
     ----------
@@ -154,7 +162,7 @@ class Signal(object):
             signal's ``data`` vector (the default is ``'mean'``.)
 
         Examples
-        -------
+        --------
         >>> e = Signal( \
         ...     data=[1,2,3,4,5,6,7,8,9], \
         ...     time=[1,1,1,2,2,2,3,3,3] \
