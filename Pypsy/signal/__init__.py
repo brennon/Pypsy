@@ -8,7 +8,7 @@ __author__ = 'Brennon Bortz'
 
 
 class Signal(object):
-    """
+    r"""
     ``Signal`` represents a basic signal and timestamps for this signal.
 
     Parameters
@@ -22,7 +22,15 @@ class Signal(object):
     convert_time : function, optional
         A function that should be used to convert the values in ``time`` to
         seconds. If provided, this function should accept the entire ``time``
-        array as its single argument.
+        array as its single argument (default= ``None`` ).
+    collapse_timestamps : bool, optional
+        If ``True``, use :py:meth:`Pypsy.signal.Signal.collapse_timestamps` to
+        collapse the signal's timestamps (default= ``None`` ).
+    collapse_method : str, optional
+        If provided, this is passed as the ``method`` parameter for
+        :py:meth:`Pypsy.signal.Signal.collapse_timestamps`
+        (default= ``None`` ).
+
 
     Attributes
     ----------
@@ -68,6 +76,25 @@ class Signal(object):
     >>> sig.time.tolist()
     [0.0, 0.01, 0.02]
 
+    >>> sig = Signal(data=[1,2,3,4,5,6,7,8,9], \
+    ...     time=[1,1,1,2,2,2,3,3,3], \
+    ...     collapse_timestamps=True)
+    >>> expected_data = np.array([2., 5., 8.])
+    >>> expected_time = np.array([1., 2., 3.])
+    >>> np.testing.assert_almost_equal(sig.data, expected_data)
+    >>> np.testing.assert_almost_equal(sig.time, expected_time)
+
+    >>> sig = Signal( \
+    ...     data=[1,2,7,-1,5,6,7,8,9], \
+    ...     time=[1,1,1,2,2,2,3,3,3], \
+    ...     collapse_timestamps=True, \
+    ...     collapse_method='median' \
+    ... )
+    >>> expected_data = np.array([2., 5., 8.])
+    >>> expected_time = np.array([1., 2., 3.])
+    >>> np.testing.assert_almost_equal(sig.data, expected_data)
+    >>> np.testing.assert_almost_equal(sig.time, expected_time)
+
     >>> Signal(data, time[:-1])
     Traceback (most recent call last):
         ...
@@ -82,7 +109,13 @@ class Signal(object):
     data = np.array([])
     time = np.array([])
 
-    def __init__(self, data, time, convert_time=None):
+    def __init__(self,
+                 data,
+                 time,
+                 convert_time=None,
+                 collapse_timestamps=False,
+                 collapse_method=None):
+
         data = np.asarray(data, dtype=np.float64)
         time = np.asarray(time, dtype=np.float64)
 
@@ -101,6 +134,14 @@ class Signal(object):
 
         self.original_data = np.array(data)
         self.original_time = np.array(time)
+
+        # Collapse timestamps if specified
+        if collapse_timestamps:
+            if collapse_method is not None:
+                self.collapse_timestamps(method=collapse_method)
+            else:
+                self.collapse_timestamps()
+
 
     def collapse_timestamps(self, method='mean'):
         r"""
@@ -121,7 +162,7 @@ class Signal(object):
             signal's ``data`` vector (the default is ``'mean'``.)
 
         Examples
-        -------
+        --------
         >>> e = Signal( \
         ...     data=[1,2,3,4,5,6,7,8,9], \
         ...     time=[1,1,1,2,2,2,3,3,3] \
@@ -182,6 +223,9 @@ class EDASignal(Signal):
         The times (in seconds) at which the signal was sampled. ``time[x]``
         is the time at which the measure of the signal at ``data[x]`` was
         taken.
+    kwargs
+        Additional keyword arguments are passed on to the
+        :py:class:`Pypsy.signal.Signal` constructor.
 
     Attributes
     ----------
@@ -215,8 +259,8 @@ class EDASignal(Signal):
     array([ 0.1,  0.2,  0.3])
     """
 
-    def __init__(self, data, time, convert_time=None):
-        super().__init__(data, time, convert_time)
+    def __init__(self, *args, **kwargs):
+        super(EDASignal, self).__init__(*args, **kwargs)
 
         self.composite_driver = np.array([], dtype=np.float64)
         self.composite_driver_remainder = np.array([], dtype=np.float64)
@@ -307,15 +351,17 @@ class EDASignal(Signal):
         >>> sig.error['compound'] == saved.error['compound']
         True
         """
-
-        if optimize:
-            # FIXME: cgd should have no knowledge of EDASignal
-            # (Updated tau are a side effect in cgd)
-            x, history = Pypsy.optimization.cgd(
-                self.tau, self._decompose, np.array([.3, 2]), .01, 20, .05
-            )
-        else:
-            self._decompose(self.tau)
+        try:
+            if optimize:
+                # FIXME: cgd should have no knowledge of EDASignal
+                # (Updated tau are a side effect in cgd)
+                x, history = Pypsy.optimization.cgd(
+                    self.tau, self._decompose, np.array([.3, 2]), .01, 20, .05
+                )
+            else:
+                self._decompose(self.tau)
+        except IndexError:
+            raise RuntimeWarning('Signal is not long enough for decomposition')
 
     def _decompose(self, tau):
         """

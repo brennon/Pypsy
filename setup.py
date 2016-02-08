@@ -2,11 +2,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='Pypsy',
-    version='0.1.2',
+    version='0.1.3',
     packages=find_packages(exclude=['tests']),
     install_requires=[
         'numpy',
-        'scipy'
+        'scipy',
+        'sklearn'
     ],
     url='http://www.musicsensorsemotion.com',
     license='MIT',

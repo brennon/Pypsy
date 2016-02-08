@@ -1,5 +1,6 @@
 import numpy as np
 import Pypsy.signal.utilities
+import sklearn.linear_model
 
 __author__ = "Brennon Bortz"
 
@@ -37,8 +38,8 @@ def bateman(time, onset=0, amplitude=0, tau1=0.5, tau2=3.75):
     ValueError
         If ``tau1`` and ``tau2`` are not both greater than zero, or if they are equal
     TypeError
-        If ``time`` is not array-like (cannot be converted to a :py:class:`numpy.ndarray` using
-        :py:meth:`numpy.array()`)
+        If ``time`` is not array-like (cannot be converted to a
+        :py:class:`numpy.ndarray` using :py:meth:`numpy.array()`)
 
     Examples
     --------
@@ -937,4 +938,60 @@ def fit_error(data, fit, npar, errortype='MSE'):
         #     error = SSE/leda2.data.conductance.error;
 
     return error
+
+
+def linear_fit(x_data, y_data):
+    """
+    Compute a straight line fit for a given ``x_data`` and ``y_data``.
+
+    Parameters
+    ----------
+    x_data : array_like
+        An array of values of a function evaluated at each point in ``y_data``
+    y_data : array_like
+        An array of points at which the function evaluated
+
+    Returns
+    -------
+    intercept : float
+        The calculated intercept
+    slope : float
+        The calculated slope
+
+    Raises
+    ------
+    ValueError
+        If ``x_data`` and ``y_data`` are not the same length
+    TypeError
+        If ``x_data`` or ``y_data`` are not array-like (cannot be converted to
+        a :py:class:`numpy.ndarray` using :py:meth:`numpy.array()`)
+
+    Examples
+    --------
+    >>> time = np.array([0, 1, 2])
+    >>> signal = np.array([5, 6, 7])
+    >>> intercept, slope = linear_fit(time, signal)
+    >>> np.testing.assert_almost_equal(intercept, 5)
+    >>> np.testing.assert_almost_equal(slope, 1)
+
+    >>> linear_fit([0, 1, 2], [0, 1])
+    Traceback (most recent call last):
+      ...
+    ValueError: x_data and y_data must be the same length
+    """
+    x = np.asarray(x_data)
+    y = np.asarray(y_data)
+
+    if len(x.shape) == 1:
+        x = x.reshape(-1, 1)
+
+    if len(y.shape) == 1:
+        y = y.reshape(-1, 1)
+
+    if len(x) != len(y):
+        raise ValueError('x_data and y_data must be the same length')
+
+    model = sklearn.linear_model.LinearRegression()
+    fit = model.fit(x, y)
+    return fit.intercept_, fit.coef_
 

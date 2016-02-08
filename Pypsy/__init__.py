@@ -1,7 +1,7 @@
 import numpy as np
 
 __author__ = 'Brennon Bortz'
-
+__version__ = '0.1.3'
 
 def constrain(value, minimum, maximum):
     """
