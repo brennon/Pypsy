@@ -1,4 +1,6 @@
 import numpy as np
+import scipy.interpolate
+
 import Pypsy.signal
 
 __author__ = "Brennon Bortz"
@@ -32,72 +34,95 @@ def calculate_sample_rate(signal):
     10.0
     """
     if not signal.time.size > 1:
-        raise ValueError('Sample rate is undefined for a signal of length < 2.')
+        raise ValueError(
+                'Sample rate is undefined for a signal of length < 2.'
+        )
     return 1./np.mean(np.diff(signal.time))
 
 
-def resample_signal(signal, target_fs):
-    """
-    Resample the data vector of a signal at the specified sample rate using linear interpolation. This function
-    modifies the signal in place.
+def resample_signal(time, data, target_fs):
+    r"""
+    Resample the data vector of a signal at the specified sample rate using
+    linear interpolation.
 
     Parameters
     ----------
-    signal : Pypsy.signal.Signal
+    time : array_like
+        The time points (in seconds) at which ``data`` was sampled
+    data : array_like
         The signal to be resampled
     target_fs : float
         The target sample rate in Hertz
 
     Returns
     -------
-    out : Pypsy.signal.Signal
+    new_time : :py:class:`numpy.ndarray`
+        The time points (in seconds) at which ``new_data`` is sampled
+    new_data : :py:class:`numpy.ndarray`
         The resampled signal
 
     Examples
     --------
-    >>> time = np.array([0., 0.1, 0.2])
-    >>> data = np.array([-1., 0., 1.])
-    >>> signal = Pypsy.signal.Signal(data, time)
-    >>> resampled_signal = resample_signal(signal, 20)
-    >>> np.sum(np.array([0, 0.05, 0.1, 0.15, 0.2]) - resampled_signal.time) < 0.001
-    True
-    >>> np.sum(np.array([-1, -0.5, 0, 0.5, 1]) - resampled_signal.data) < 0.001
-    True
+    >>> time = np.array([0., 0.1, 0.2, 0.3, 0.4, 0.5])
+    >>> data = np.array([-1., 0., 1., 0., -1., 0.])
+    >>> resampled_time, resampled_data = resample_signal(time, data, 20)
+    >>> exact_time = np.array([0., 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, \
+    ...     0.4, 0.45, 0.5])
+    >>> np.testing.assert_almost_equal(resampled_time, exact_time)
+    >>> exact_data = np.array([-1., -0.5, 0., 0.5, 1., 0.5, 0., -0.5, -1., \
+    ...     -0.5, 0.])
+    >>> np.testing.assert_almost_equal(resampled_data, exact_data, 1)
 
     >>> time = np.array([0, 0.04, 0.08, 0.12, 0.16])
     >>> data = np.array([-1., 0, 1, 0, -1])
-    >>> signal = Pypsy.signal.Signal(data, time)
-    >>> resampled_signal = resample_signal(signal, 25.0)
-    >>> resampled_signal.time
-    array([ 0.  ,  0.04,  0.08,  0.12,  0.16])
+    >>> resampled_time, resampled_data = resample_signal(time, data, 25.0)
+    >>> expected = np.array([ 0.  ,  0.04,  0.08,  0.12,  0.16])
+    >>> np.testing.assert_almost_equal(expected, resampled_time)
+
+    >>> time = np.array([0.1, 0.2, 0.3, 0.4])
+    >>> data = np.array([-1., 0., 1., 0.])
+    >>> resampled_time, resampled_data = resample_signal(time, data, 20)
+    >>> exact_time = np.array([0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4])
+    >>> np.testing.assert_almost_equal(resampled_time, exact_time)
+    >>> exact_data = np.array([-1., -0.5, 0., 0.5, 1., 0.5, 0.])
+    >>> np.testing.assert_almost_equal(resampled_data, exact_data, 1)
     """
-    import sys
+    # import sys
 
     # Calculate target sample period and duration of signal
     target_dt = 1. / target_fs
-    start_time = signal.time[0]
-    end_time = signal.time[-1]
+    start_time = time[0]
+    end_time = time[-1]
     duration = end_time - start_time
 
     # Count number of sample periods in duration
-    target_samples = np.int64(duration * target_fs)
+    # target_samples = np.int64(duration * target_fs)
 
     # Create timestamps
-    target_timestamps = np.arange(0, target_samples)
-    target_timestamps = (target_timestamps * target_dt) + signal.time[0]
+    target_timestamps = np.arange(0., duration + target_dt, target_dt)
+    target_timestamps += time[0]
+    too_low = target_timestamps < start_time
+    too_high = target_timestamps > end_time
+    too_low_or_high = too_low + too_high
+    target_timestamps = target_timestamps[~too_low_or_high]
 
-    # Add a timestamp for final sample if it falls close enough to an actual timestamp
-    if (end_time % target_dt) < sys.float_info.epsilon:
-        target_timestamps = np.append(target_timestamps, [end_time])
+    # Add a timestamp for final sample if it falls close enough to an actual
+    # timestamp
+    # if (end_time % target_dt) < sys.float_info.epsilon:
+    #     target_timestamps = np.append(target_timestamps, [end_time])
 
     # Interpolate signal using linear interpolation
-    target_signal = np.interp(target_timestamps, signal.time, signal.data)
+    # target_signal = np.interp(target_timestamps, time, data)
+    # interpolant = scipy.interpolate.interp1d(time, data, kind='linear')
+    # target_signal = interpolant(target_timestamps)
+    target_signal = scipy.interpolate.pchip_interpolate(
+        time,
+        data,
+        target_timestamps,
+        der=0
+    )
 
-    # Update signal vectors and return signal
-    signal.time = target_timestamps
-    signal.data = target_signal
-
-    return signal
+    return target_timestamps, target_signal
 
 
 def smooth(data, window_width, windowtype='gauss'):
@@ -111,8 +136,9 @@ def smooth(data, window_width, windowtype='gauss'):
     window_width : int
         The width of the smoothing window in samples
     windowtype : str
-        The type of window to use. Available choices are `gauss` (default), `hann` (a Hanning window), `expl`
-        (exponential), and `mean` (moving average).
+        The type of window to use. Available choices are `'gauss'` (default),
+        `'hann'` (a Hanning window), `'expl'` (exponential), and `'mean'`
+        (moving average).
 
     Returns
     -------
@@ -122,8 +148,8 @@ def smooth(data, window_width, windowtype='gauss'):
     Raises
     ------
     TypeError
-        If ``data`` is not array-like (cannot be converted to a :py:class:`numpy.ndarray` using
-        :py:meth:`numpy.array()`)
+        If ``data`` is not array-like (cannot be converted to a
+        :py:class:`numpy.ndarray` using :py:meth:`numpy.array()`)
     """
 
     from scipy.stats import norm
