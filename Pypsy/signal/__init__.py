@@ -25,11 +25,11 @@ class Signal(object):
         array as its single argument (default= ``None`` ).
     collapse_timestamps : bool, optional
         If ``True``, use :py:meth:`Pypsy.signal.Signal.collapse_timestamps` to
-        collapse the signal's timestamps (default= ``None`` ).
+        collapse the signal's timestamps (default= ``True`` ).
     collapse_method : str, optional
         If provided, this is passed as the ``method`` parameter for
         :py:meth:`Pypsy.signal.Signal.collapse_timestamps`
-        (default= ``None`` ).
+        (default= ``mean`` ).
 
 
     Attributes
@@ -113,7 +113,7 @@ class Signal(object):
                  data,
                  time,
                  convert_time=None,
-                 collapse_timestamps=False,
+                 collapse_timestamps=True,
                  collapse_method=None):
 
         data = np.asarray(data, dtype=np.float64)
@@ -137,7 +137,7 @@ class Signal(object):
 
         # Collapse timestamps if specified
         if collapse_timestamps:
-            if collapse_method is not None:
+            if collapse_method != 'mean':
                 self.collapse_timestamps(method=collapse_method)
             else:
                 self.collapse_timestamps()
@@ -250,17 +250,25 @@ class EDASignal(Signal):
 
     Examples
     --------
-    >>> data = [1, 2, 3]
-    >>> time = [0.1, 0.2, 0.3]
+    >>> data = [1, 2, 3, 4]
+    >>> time = [0.1, 0.2, 0.3, 0.4]
     >>> sig = EDASignal(data, time)
-    >>> sig.data
-    array([ 1.,  2.,  3.])
-    >>> sig.time
-    array([ 0.1,  0.2,  0.3])
+    >>> exact_data = np.array([1., 1.4, 1.8, 2.2, 2.6, 3., 3.4, 3.8])
+    >>> np.testing.assert_almost_equal(sig.data, exact_data, 1)
+    >>> exact_time = np.array([0.1, 0.14, 0.18, 0.22, 0.26, 0.3, 0.34, 0.38])
+    >>> np.testing.assert_almost_equal(sig.time, exact_time)
     """
 
     def __init__(self, *args, **kwargs):
         super(EDASignal, self).__init__(*args, **kwargs)
+
+        # For now, we need to resample to 25Hz for decomposition
+        self.time, self.data = \
+            Pypsy.signal.utilities.resample_signal(
+                self.time,
+                self.data,
+                25.0
+            )
 
         self.composite_driver = np.array([], dtype=np.float64)
         self.composite_driver_remainder = np.array([], dtype=np.float64)
@@ -396,9 +404,6 @@ class EDASignal(Signal):
 
             # FIXME: Shouldn't this be tau[1] = tau[0] + .01
             tau[1] = tau[1] + .01
-
-        # Resample at 25Hz
-        Pypsy.signal.utilities.resample_signal(self, 25.0)
 
         d = self.data.copy()
         t = self.time.copy() # Set in MATLAB as leda2.analysis0.target.t
@@ -584,20 +589,20 @@ class EDASignal(Signal):
 
         Examples
         --------
-        >>> data = np.random.rand(2)
-        >>> time = np.array([0.1, 0.2])
+        >>> data = np.random.rand(5 * 25) + 5
+        >>> time = np.linspace(0., 5, 5 * 25)
         >>> e = EDASignal(data, time)
-        >>> e.composite_driver = np.random.rand(2)
-        >>> e.composite_driver_remainder = np.random.rand(2)
-        >>> e.data = np.random.rand(2)
-        >>> e.kernel = np.random.rand(2)
-        >>> e.phasic_data = np.random.rand(2)
-        >>> e.phasic_driver = np.random.rand(2)
-        >>> e.phasic_driver_raw = np.random.rand(2)
+        >>> e.composite_driver = data
+        >>> e.composite_driver_remainder = data
+        >>> e.data = data
+        >>> e.kernel = data
+        >>> e.phasic_data = data
+        >>> e.phasic_driver = data
+        >>> e.phasic_driver_raw = data
         >>> e.tau = np.random.rand(2)
-        >>> e.time = np.random.rand(2)
-        >>> e.tonic_data = np.random.rand(2)
-        >>> e.tonic_driver = np.random.rand(2)
+        >>> e.time = time
+        >>> e.tonic_data = data
+        >>> e.tonic_driver = data
         >>> e.error['mse'] = np.random.rand()
         >>> e.error['rmse'] = np.random.rand()
         >>> e.error['discreteness'] = np.random.rand()

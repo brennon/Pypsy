@@ -993,5 +993,5 @@ def linear_fit(x_data, y_data):
 
     model = sklearn.linear_model.LinearRegression()
     fit = model.fit(x, y)
-    return fit.intercept_, fit.coef_
+    return fit.intercept_[0], fit.coef_[0][0]
 
