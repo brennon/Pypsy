@@ -1,8 +1,11 @@
 import numpy as np
 import scipy.signal
 import Pypsy.optimization
+
 import Pypsy.signal.utilities
 import Pypsy.signal.analysis
+import Pypsy.signal.filter
+import Pypsy.signal.conversion
 
 __author__ = 'Brennon Bortz'
 

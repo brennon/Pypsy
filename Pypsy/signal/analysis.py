@@ -95,14 +95,14 @@ def bateman(time, onset=0, amplitude=0, tau1=0.5, tau2=3.75):
 
         # Approximate area under bateman(x, tau1, tau2) and define c to scale output by 1/sampling rate, as calculated
         # by taking the reciprocal of the mean of the discrete first derivative of the timestamp vector
-        fs = round(1. / np.mean(np.diff(time)));
+        fs = round(1. / np.mean(np.diff(time)))
         c = 1. / ((tau2 - tau1) * fs)
 
     # If tau1 is greater than zero
     if tau1 > 0:
 
         # Return c * bateman(x, tau1, tau2)
-        conductance[onset_range] = c * (np.exp(-xr/tau2) - np.exp(-xr/tau1));
+        conductance[onset_range] = c * (np.exp(-xr/tau2) - np.exp(-xr/tau1))
 
     else:
 
@@ -197,7 +197,7 @@ def bateman_gauss(time, onset=0, amplitude=0, tau1=3.75, tau2=0.5, sigma=0):
 
         # Return the 'interesting' portion of the result of the convolution
         # (trim the tail).
-        component = bg[int((winwidth2*2+1) -1) : -(int(winwidth2*2))]
+        component = bg[np.int((winwidth2*2+1) -1):-(np.int(winwidth2*2))]
 
     return component
 
