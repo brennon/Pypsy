@@ -9,10 +9,12 @@ Subpackages
     Pypsy.optimization
     Pypsy.signal
 
-Module contents
----------------
 
-.. automodule:: Pypsy
-    :members:
-    :undoc-members:
-    :show-inheritance:
+..
+    Module contents
+    ---------------
+..
+    .. automodule:: Pypsy
+        :members:
+        :undoc-members:
+        :show-inheritance:
