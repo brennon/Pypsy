@@ -22,14 +22,14 @@ class Signal(object):
     convert_time : function, optional
         A function that should be used to convert the values in ``time`` to
         seconds. If provided, this function should accept the entire ``time``
-        array as its single argument (default= ``None`` ).
+        array as its single argument (default is ``None``).
     collapse_timestamps : bool, optional
         If ``True``, use :py:meth:`Pypsy.signal.Signal.collapse_timestamps` to
-        collapse the signal's timestamps (default= ``True`` ).
+        collapse the signal's timestamps (default is ``False``).
     collapse_method : str, optional
         If provided, this is passed as the ``method`` parameter for
         :py:meth:`Pypsy.signal.Signal.collapse_timestamps`
-        (default= ``mean`` ).
+        (default is ``None``).
 
 
     Attributes
@@ -78,7 +78,8 @@ class Signal(object):
 
     >>> sig = Signal(data=[1,2,3,4,5,6,7,8,9], \
     ...     time=[1,1,1,2,2,2,3,3,3], \
-    ...     collapse_timestamps=True)
+    ...     collapse_timestamps=True, \
+    ...     collapse_method='mean')
     >>> expected_data = np.array([2., 5., 8.])
     >>> expected_time = np.array([1., 2., 3.])
     >>> np.testing.assert_almost_equal(sig.data, expected_data)
@@ -94,6 +95,17 @@ class Signal(object):
     >>> expected_time = np.array([1., 2., 3.])
     >>> np.testing.assert_almost_equal(sig.data, expected_data)
     >>> np.testing.assert_almost_equal(sig.time, expected_time)
+
+    >>> sig = Signal( \
+    ...     data=[1,2,7,-1,5,6,7,8,9], \
+    ...     time=[1,1,1,2,2,2,3,3,3], \
+    ...     collapse_timestamps=True, \
+    ...     collapse_method='resample' \
+    ... )
+    >>> expected_data = np.array([1,2,7,-1,5,6,7,8,9])
+    >>> expected_time = np.array([1,1.333,1.666,2,2.333,2.666,3,3.333,3.666])
+    >>> np.testing.assert_almost_equal(sig.data, expected_data)
+    >>> np.testing.assert_almost_equal(sig.time, expected_time, 3)
 
     >>> Signal(data, time[:-1])
     Traceback (most recent call last):
@@ -113,7 +125,7 @@ class Signal(object):
                  data,
                  time,
                  convert_time=None,
-                 collapse_timestamps=True,
+                 collapse_timestamps=False,
                  collapse_method=None):
 
         data = np.asarray(data, dtype=np.float64)
@@ -137,10 +149,7 @@ class Signal(object):
 
         # Collapse timestamps if specified
         if collapse_timestamps:
-            if collapse_method != 'mean':
-                self.collapse_timestamps(method=collapse_method)
-            else:
-                self.collapse_timestamps()
+            self.collapse_timestamps(method=collapse_method)
 
 
     def collapse_timestamps(self, method='mean'):
@@ -154,6 +163,13 @@ class Signal(object):
         corresponding entries in the signal's ``data`` vector will be taken,
         and when ``'median'`` is specified, the median of corresponding
         entries in ``data`` will be taken.
+
+        If ``method`` is simply ``'resample'``, this method will instead assume
+        that the timestamps should simply be adjusted to reflect a uniform
+        sampling rate. If, for instance, the timestamps are
+        ``[1,1,2,2,3,3,4,4]`` and the corresponding signal/data values are
+        ``[1,2,3,4,5,6,7,8]``, the data values will be left intact, and the
+        timestamps will be updated to ``[1,1.5,2,2.5,3,3.5,4,4.5]``.
 
         Parameters
         ----------
@@ -182,37 +198,71 @@ class Signal(object):
         >>> expected_time = np.array([1., 2., 3.])
         >>> np.testing.assert_almost_equal(e.data, expected_data)
         >>> np.testing.assert_almost_equal(e.time, expected_time)
+
+        >>> e = Signal( \
+        ...     data=[1,2,3,4,5,6,7,8,9,10,11], \
+        ...     time=[1,1,1,2,2,2,2,2,3,3,3], \
+        ...     collapse_timestamps=False
+        ... )
+        >>> e.collapse_timestamps(method='resample')
+        >>> expected_data = np.array([1,2,3,4,5,6,7,8,9,10,11])
+        >>> expected_time = np.array([1,1.25,1.5,1.75,2,2.25,2.5,2.75,3,3.25,3.5])
+        >>> np.testing.assert_almost_equal(e.data, expected_data)
+        >>> np.testing.assert_almost_equal(e.time, expected_time)
         """
+        # If method was 'resample', first handle problems with timestamps, then
+        # collapse
+        if method == 'resample':
 
-        # Get unique timestamps
-        collapsed_time = np.unique(self.time)
+            # Get start and first unique end time
+            start_time = self.time[0]
+            end_time = np.max(np.unique(self.time))
+            end_index = np.where(self.time == end_time)[0][0]
 
-        # New data vector
-        collapsed_data = np.zeros(collapsed_time.size)
+            # Count samples between these two times, and calculate sampling rate
+            samples = end_index
+            time_delta = end_time - start_time
+            sample_period = time_delta / samples
 
-        collapse_function = None
-        if method == 'mean':
-            collapse_function = np.mean
-        else:
-            collapse_function = np.median
+            # Create new vector of timestamps
+            last_sample_value = \
+                ((len(self.time) - 1) * sample_period) + start_time
+            new_times = \
+                np.linspace(start_time, last_sample_value, len(self.time))
+            self.time = new_times
 
-        # Iterate over times
-        for index, t in enumerate(collapsed_time):
+        elif method == 'mean' or method == 'median':
 
-            # Find all indices that match this time
-            matching_data = self.data[self.time == t]
-            collapsed_data[index] = collapse_function(matching_data)
+            # Get unique timestamps
+            collapsed_time = np.unique(self.time)
 
-        self.time = collapsed_time
-        self.data = collapsed_data
+            # New data vector
+            collapsed_data = np.zeros(collapsed_time.size)
+
+            collapse_function = None
+            if method == 'mean':
+                collapse_function = np.mean
+            elif method == 'median':
+                collapse_function = np.median
+
+            if collapse_function is not None:
+                # Iterate over times
+                for index, t in enumerate(collapsed_time):
+
+                    # Find all indices that match this time
+                    matching_data = self.data[self.time == t]
+                    collapsed_data[index] = collapse_function(matching_data)
+
+            self.time = collapsed_time
+            self.data = collapsed_data
 
 
 class EDASignal(Signal):
     """
-    `EDASignal` represents an electrodermal activity signal. It includes
-    facilities for the decomposition of electrodermal activity into its
-    tonic and phasic components. These facilities are a port of Ledalab from
-    `Ledalab <http://www.ledalab.de>`__ from MATLAB.
+    An :py:class:`~Pypsy.signal.EDASignal` represents an electrodermal activity
+    signal. It includes facilities for the decomposition of electrodermal
+    activity into its tonic and phasic components. These facilities are a port
+    of Ledalab from `Ledalab <http://www.ledalab.de>`__ from MATLAB.
 
     Parameters
     ----------
