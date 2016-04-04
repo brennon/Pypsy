@@ -2,7 +2,7 @@ Pypsy
 =====
 
 Pypsy is a library for the analysis of of psychophysiological data. Currently,
-Pypsy provides a suite of tools for the decomposotion and analysis of
+Pypsy provides a suite of tools for the decomposition and analysis of
 electrodermal activity (EDA) signals. Much of this functionality is a
 port of the `Ledalab <http://www.ledalab.de>`_ software from the
 `MATLAB <http://www.mathworks.com>`_ programming language.
