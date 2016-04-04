@@ -1,5 +1,5 @@
-Pypsy
-=====
+Pypsy Modules
+=============
 
 .. toctree::
    :maxdepth: 4

@@ -1,44 +1,23 @@
-Pypsy.signal package
-====================
+Pypsy.signal
+============
 
-Submodules
-----------
+Objects of the :py:class:`~Pypsy.signal.Signal` class (and its subclasses) are
+used to represent psychophysiological signal time series. The
+:py:class:`~Pypsy.signal.Signal` class can be used to represent any signal with
+data and associated time points, while the :py:class:`~Pypsy.signal.EDASignal`
+class contains special functionality for decomposing EDA signals into their
+tonic and phasic components.
 
-Pypsy.signal.analysis module
-----------------------------
+You likely won't need to access the following submodules directly, but they
+are documented, nevertheless:
 
-.. automodule:: Pypsy.signal.analysis
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
+    :maxdepth: 1
 
-Pypsy.signal.conversion module
-------------------------------
-
-.. automodule:: Pypsy.signal.conversion
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-Pypsy.signal.filter module
---------------------------
-
-.. automodule:: Pypsy.signal.filter
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-Pypsy.signal.utilities module
------------------------------
-
-.. automodule:: Pypsy.signal.utilities
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
+    Pypsy.signal.analysis
+    Pypsy.signal.conversion
+    Pypsy.signal.filter
+    Pypsy.signal.utilities
 
 .. automodule:: Pypsy.signal
     :members:

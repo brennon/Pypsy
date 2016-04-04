@@ -6,6 +6,52 @@ import Pypsy.signal
 __author__ = "Brennon Bortz"
 
 
+def constrain(value, minimum, maximum):
+    """
+    Constrain a value to be between a minimum and maximum value.
+
+    Parameters
+    ----------
+    value : float
+        The value to constrain
+    minimum : float
+        The minimum allowable value
+    maximum : float
+        The maximum allowable value
+
+    Returns
+    -------
+    out : float
+        Returns the original ``value`` if it lies between ``minimum`` and
+        ``maximum``, inclusive. Otherwise, returns ``minimum`` if ``value`` is
+        less than ``minimum``, or returns ``maximum`` if ``value`` is greater
+        than ``maximum``.
+
+    Notes
+    -----
+    ``value``, ``minimum``, and ``maximum`` are casted to
+    :py:class:`numpy.float64`.
+
+    Examples
+    --------
+    >>> constrain(1, 0.5, 1.5)
+    1.0
+    >>> constrain(0.5, 0.5, 1.5)
+    0.5
+    >>> constrain(1.5, 0.5, 1.5)
+    1.5
+    >>> constrain(-4, -3, 1)
+    -3.0
+    >>> constrain(5, -1, 2)
+    2.0
+    """
+    minimum = np.float64(minimum)
+    maximum = np.float64(maximum)
+    value = np.float64(value)
+
+    return np.max([np.min([value, maximum]), minimum])
+
+
 def calculate_sample_rate(signal):
     """
     Calculate the sample rate of a signal.
@@ -180,7 +226,9 @@ def smooth(data, window_width, windowtype='gauss'):
 
     # Gaussian window
     elif windowtype == 'gauss':
-        window = norm.pdf(np.arange(1, window_width + 1), window_width / 2. + 1, window_width / 8.)
+        window = norm.pdf(
+                np.arange(1, window_width + 1),
+                window_width / 2. + 1, window_width / 8.)
 
     # Exponential window
     elif windowtype == 'expl':
@@ -194,7 +242,8 @@ def smooth(data, window_width, windowtype='gauss'):
     # Normalize window
     window = window / np.sum(window)
 
-    # Extend first and last values in data by half a window width on either side
+    # Extend first and last values in data by half a window width on either
+    # side
     head = np.ones(np.int64(window_width / 2)) * data[0]
     tail = np.ones(np.int64(window_width / 2)) * data[-1]
     data_extended = np.concatenate([head, data, tail])
@@ -208,7 +257,8 @@ def smooth(data, window_width, windowtype='gauss'):
 
 def closest_time_index(time, target_time):
     """
-    From a vector of monotonically-increasing timestamps, find the index of the timestamp closest to a target timestamp.
+    From a vector of monotonically increasing timestamps, find the index of
+    the timestamp closest to a target timestamp.
 
     Parameters
     ----------
@@ -220,15 +270,16 @@ def closest_time_index(time, target_time):
     Returns
     -------
     index : int
-        The index of the timestamp in ``time`` that is closest to ``target_time``
+        The index of the timestamp in ``time`` that is closest to
+        ``target_time``
     closest_time : float
         The timestamp in ``time`` at this index
 
     Raises
     ------
     TypeError
-        If ``time`` is not array-like (cannot be converted to a :py:class:`numpy.ndarray` using
-        :py:meth:`numpy.array()`)
+        If ``time`` is not array-like (cannot be converted to a
+        :py:class:`numpy.ndarray` using :py:meth:`numpy.array()`)
 
     Examples
     --------
@@ -290,7 +341,8 @@ def closest_time_index(time, target_time):
         # Grab the value of time at this index
         closest_time = time[index]
 
-        # If the previous index was closer in time, use it as the index and adjusted time
+        # If the previous index was closer in time, use it as the index and
+        # adjusted time
         if closest_time != time[0]:
             closest_earlier_time = time[index-1]
             if np.abs(target_time - closest_earlier_time) < np.abs(target_time - closest_time):
@@ -309,8 +361,8 @@ def closest_time_index(time, target_time):
 
 def subrange_indices(time, start_time, end_time):
     """
-    Given start and end times ``start_time`` and ``end_time``, find the indices of the timestamps in ``time`` that are
-    within these times.
+    Given start and end times ``start_time`` and ``end_time``, find the indices
+    of the timestamps in ``time`` that are within these times.
 
     Parameters
     ----------
@@ -324,8 +376,9 @@ def subrange_indices(time, start_time, end_time):
     Returns
     -------
     out : numpy.ndarray
-        The subrange of indices of those timestamps in ``time`` that begins with the time closest to ``start_time`` and
-        ends with the time closest to ``start_time``
+        The subrange of indices of those timestamps in ``time`` that begins
+        with the time closest to ``start_time`` and ends with the time closest
+        to ``start_time``
 
     Examples
     --------
@@ -342,12 +395,13 @@ def subrange_indices(time, start_time, end_time):
     array([5])
     """
 
-    # Get the closest indices to the start and stop times (start_time and end_time)
+    # Get the closest indices to the start and stop times (start_time and
+    # end_time)
     start_index, _ = closest_time_index(time, start_time)
     end_index, _ = closest_time_index(time, end_time)
 
-    # If there are overlapping timestamps between these two vectors, return a vector of indices into time from
-    # start_time up to end_time
+    # If there are overlapping timestamps between these two vectors, return a
+    # vector of indices into time from start_time up to end_time
     if start_index is not None and end_index is not None:
         indices = np.arange(start_index, end_index + 1)
 
@@ -360,14 +414,16 @@ def subrange_indices(time, start_time, end_time):
 
 def nonzero_portion(data, threshold, exponent, sample_rate):
     """
-    Compute the portion of ``data`` that is nonzero. This portion is computed with
+    Compute the portion of ``data`` that is nonzero. This portion is computed
+    with
 
     .. math::
 
         \\frac{\\sum z^f}{d}
 
-    where :math:`z` is the duration of ``data`` where the absolute amplitude is greater than ``threshold``, :math:`f` is
-    ``exponent``, and :math:`d` is the total duration of ``data``.
+    where :math:`z` is the duration of ``data`` where the absolute amplitude is
+    greater than ``threshold``, :math:`f` is ``exponent``, and :math:`d` is the
+    total duration of ``data``.
 
     Parameters
     ----------
@@ -413,7 +469,8 @@ def nonzero_portion(data, threshold, exponent, sample_rate):
             if counter > 0:
 
                 # Append counter value to nonzero_sample_counts vector
-                nonzero_sample_counts = np.concatenate([nonzero_sample_counts, [counter]])
+                nonzero_sample_counts = \
+                    np.concatenate([nonzero_sample_counts, [counter]])
 
                 # Reset counter
                 counter = 0
@@ -422,7 +479,8 @@ def nonzero_portion(data, threshold, exponent, sample_rate):
     if counter > 0:
 
         # Append counter value to nonzero_sample_counts vector
-        nonzero_sample_counts = np.concatenate([nonzero_sample_counts, [counter]])
+        nonzero_sample_counts = \
+            np.concatenate([nonzero_sample_counts, [counter]])
 
     # If nonzero_sample_counts is non-empty
     if nonzero_sample_counts.size > 0:
