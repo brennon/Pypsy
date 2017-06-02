@@ -175,7 +175,7 @@ def bateman_gauss(time, onset=0, amplitude=0, tau1=3.75, tau2=0.5, sigma=0):
         # We'll prepend and append extensions of the first and last values of
         # the Bateman output to either side of it. The length of each of these
         # extensions is 4*sigma
-        winwidth2 = np.ceil(sr * sigma * 4)
+        winwidth2 = int(np.ceil(sr * sigma * 4))
 
         # Create a time vector for the Gaussian window that is 2 * winwidth2 + 1
         t = np.arange(1, (winwidth2 * 2 + 1) + 1)
