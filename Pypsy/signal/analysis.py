@@ -807,7 +807,10 @@ def interimpulse_fit(driver, kernel, minima, maxima, original_time, original_sig
             # inter-impulse data over the window, or the original signal at the
             # nearest possible time index.
             closest_index, closest_time = Pypsy.signal.utilities.closest_time_index(original_time, grid_time[i])
-            tonic_level[i] = np.min([np.median(driver[grid_indices]),  original_signal[closest_index]])
+            if len(grid_indices) > 0:
+                tonic_level[i] = np.min([np.median(driver[grid_indices]),  original_signal[closest_index]])
+            else:
+                tonic_level[i] = original_signal[closest_index]
 
     # tonic_driver is the tonic_level signal PCHIP interpolated across the
     # original timestamps
